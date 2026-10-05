@@ -1,0 +1,16 @@
+{
+  "name": "journeykit",
+  "displayName": "JourneyKit",
+  "version": "0.1.0",
+  "description": "Set up JourneyKit in your product and run it from your coding agent: install the SDK, track events and lifecycle stages, verify data arrives, and build journeys.",
+  "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
+  "homepage": "https://docs.journeykit.io/docs/mcp",
+  "repository": "https://github.com/JourneyKit/journeykit-plugin",
+  "license": "MIT",
+  "keywords": ["journeykit", "lifecycle-marketing", "analytics", "onboarding", "email", "mcp"],
+  "icon": "./assets/logo.png",
+  "documentationUrl": "https://docs.journeykit.io/docs/mcp",
+  "supportUrl": "https://github.com/JourneyKit/journeykit-plugin/issues",
+  "privacyPolicyUrl": "https://journeykit.io/privacy",
+  "termsOfServiceUrl": "https://journeykit.io/terms"
+}

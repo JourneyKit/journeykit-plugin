@@ -1,0 +1,13 @@
+{
+  "name": "journeykit",
+  "owner": { "name": "JourneyKit", "email": "hello@journeykit.io" },
+  "metadata": { "description": "The official JourneyKit plugin." },
+  "plugins": [
+    {
+      "name": "journeykit",
+      "source": "./",
+      "description": "Set up JourneyKit in your product and run it from your coding agent.",
+      "category": "development"
+    }
+  ]
+}

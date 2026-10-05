@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "journeykit",
+  "version": "0.1.0",
+  "description": "Set up JourneyKit in your product and run it from your coding agent: install the SDK, track events and lifecycle stages, verify data arrives, and build journeys.",
+  "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
+  "homepage": "https://docs.journeykit.io/docs/mcp",
+  "repository": "https://github.com/JourneyKit/journeykit-plugin",
+  "license": "MIT",
+  "keywords": ["journeykit", "lifecycle-marketing", "analytics", "onboarding", "email", "mcp"]
+}

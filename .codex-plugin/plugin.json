@@ -1,0 +1,33 @@
+{
+  "name": "journeykit",
+  "version": "0.1.0",
+  "description": "Set up JourneyKit in your product and run it from your coding agent: install the SDK, track events and lifecycle stages, verify data arrives, and build journeys.",
+  "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
+  "homepage": "https://docs.journeykit.io/docs/mcp",
+  "repository": "https://github.com/JourneyKit/journeykit-plugin",
+  "license": "MIT",
+  "keywords": ["journeykit", "lifecycle-marketing", "analytics", "onboarding", "email", "mcp"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "JourneyKit",
+    "shortDescription": "Lifecycle journeys for apps",
+    "longDescription": "Install JourneyKit in your product without reading the docs. Your agent finds your framework, adds the browser SDK, identifies signed-in users, tracks the events that matter, sends lifecycle stages, and verifies that data reaches your workspace. Then build segments and journeys — automated emails, in-app messages and webhooks measured against a holdout — and ask how activation and conversion are doing, all from the same conversation.",
+    "developerName": "JourneyKit",
+    "category": "Developer Tools",
+    "capabilities": ["Interactive", "Read", "Write"],
+    "websiteURL": "https://journeykit.io",
+    "supportURL": "https://github.com/JourneyKit/journeykit-plugin/issues",
+    "privacyPolicyURL": "https://journeykit.io/privacy",
+    "termsOfServiceURL": "https://journeykit.io/terms",
+    "defaultPrompt": [
+      "Set up JourneyKit in this project",
+      "Check whether events are reaching JourneyKit",
+      "Draft a journey that nudges users who haven't activated"
+    ],
+    "brandColor": "#000000",
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png",
+    "screenshots": []
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "journeykit": {
+      "type": "http",
+      "url": "https://journeykit.io/api/mcp"
+    }
+  }
+}

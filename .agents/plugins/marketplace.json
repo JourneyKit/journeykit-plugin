@@ -1,0 +1,12 @@
+{
+  "name": "journeykit",
+  "interface": { "displayName": "JourneyKit" },
+  "plugins": [
+    {
+      "name": "journeykit",
+      "source": { "source": "local", "path": "./" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Developer Tools"
+    }
+  ]
+}
