@@ -50,7 +50,6 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 | Say | The agent |
 | --- | --- |
 | "Onboard this project to JourneyKit." | The full first-time setup: fields, events, tracking code, branding, templates and draft journeys. |
-| "Set up JourneyKit in this project." | Installs and verifies the SDK, events, stages and (optionally) server-side events. |
 | "Track when a user upgrades their plan." | Adds the event where it happens, server-side if that's where it's visible. |
 | "Events aren't showing up in JourneyKit." | Diagnoses the install layer by layer and fixes it. |
 | "Draft a journey that nudges users who haven't activated after 3 days." | Builds the segment, email and journey as a draft, for you to switch on. |
@@ -66,8 +65,7 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 
 ```text
 skills/
-  onboard/          first-time setup from the codebase: fields, events, tracking, branding, emails, journeys
-  setup/            install and verify the SDK and tracking in a codebase
+  onboard/          set up from the codebase: fields, events, tracking, branding, emails, journeys
   troubleshooting/  diagnose missing data, connection and journey problems
   journeys/         build segments, emails and journeys; answer lifecycle questions
 .mcp.json           MCP server for Claude Code and Codex

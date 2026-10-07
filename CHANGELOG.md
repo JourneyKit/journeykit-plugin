@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 — 2026-10-07
+
+- `setup` is merged into `onboard`: one skill installs JourneyKit, and also handles smaller requests like tracking a new event. Its references moved to `skills/onboard/references/`.
+
 ## 0.2.0 — 2026-10-07
 
 - New `onboard` skill (`/journeykit:onboard`): the full first-time setup from the codebase — user fields and event types defined in the workspace, tracking code added, email branding matched to the product, templates written and journeys drafted.
