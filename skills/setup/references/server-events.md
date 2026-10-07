@@ -1,21 +1,21 @@
 # Server-side events
 
-Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers. These requests use a **secret key** from the environment. You write the variable name; the user sets the value.
+Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers — and, in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, from the backend's env as `JOURNEYKIT_KEY`. Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
 
 ## HTTP contract
 
-Base URL: `urls.ingest` from `check_setup` (`https://journeykit.io/api/ingest`). Header `Authorization: Bearer <secret key>`, `Content-Type: application/json`.
+Base URL: `urls.ingest` from `check_setup` (`https://journeykit.io/api/ingest`). Header `Authorization: Bearer <public key>`, `Content-Type: application/json`.
 
 | Request | Body | Response |
 | --- | --- | --- |
 | `POST /track` | `{ "userId", "event", "properties"?, "timestamp"? }` or `{ "events": [ … up to 500 ] }` | `202 { "accepted": n }` |
-| `POST /identify` | `{ "userId", "email"?, "name"?, "traits"? }` | `200` |
+| `POST /identify` | `{ "userId", "email"?, "name"?, "properties"? }` | `200` |
 
 - `userId` is the same id the front end passes to `identify`.
 - `event`: letters, digits, `_ . : -`, up to 120 characters.
-- `timestamp` (ISO 8601) backfills history; only secret keys may set it.
+- `timestamp` (ISO 8601) backfills history; only secret keys may set it (a public key with `timestamp` answers 403). Leave it out for live events.
 - Users are created on first sight, so a server event for a user the browser never identified still works.
-- Set the stage from the backend with `POST /identify` and `{ "traits": { "stage": "conversion" } }` when the backend is where the move happens (e.g. a subscription webhook).
+- Set the stage from the backend with `POST /identify` and `{ "properties": { "stage": "conversion" } }` when the backend is where the move happens (e.g. a subscription webhook).
 
 ## Helper (TypeScript / Node 18+)
 
@@ -26,7 +26,7 @@ Adapt the env access to the project (its env module, `process.env`, a config obj
 const INGEST = "https://journeykit.io/api/ingest";
 
 async function send(path: "track" | "identify", body: unknown) {
-  const key = process.env.JOURNEYKIT_SECRET_KEY;
+  const key = process.env.JOURNEYKIT_KEY;
   if (!key) return;
   try {
     const res = await fetch(`${INGEST}/${path}`, {
@@ -43,7 +43,7 @@ async function send(path: "track" | "identify", body: unknown) {
 
 export const journeykit = {
   track: (userId: string, event: string, properties?: Record<string, unknown>) => send("track", { userId, event, properties }),
-  identify: (userId: string, traits: Record<string, unknown>) => send("identify", { userId, traits }),
+  identify: (userId: string, properties: Record<string, unknown>) => send("identify", { userId, properties }),
 };
 ```
 

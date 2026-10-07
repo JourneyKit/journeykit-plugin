@@ -28,9 +28,10 @@ Positive:
 
 1. "Set up JourneyKit in this project" in a Next.js app with auth → `check_setup`, `create_public_key`; adds the SDK module, identify on session, reset on logout, `account_created` and one core event; verifies with `check_setup` `since`.
 2. "Check whether events are reaching JourneyKit" → `check_setup` with `since`; reports the checklist and which events arrived.
-3. "Track when a user upgrades their plan" in a project with a billing webhook → adds a server-side `plan_upgraded` event using `JOURNEYKIT_SECRET_KEY`, without asking for the key's value.
-4. "Draft a journey that emails users who haven't activated 3 days after sign-up" → reads stages and event names (`search_tools`, `execute_tool` on `lifecycle.stages`, `events.names`), creates a template and a draft journey, and does not activate it.
-5. "How did activation do over the last 30 days?" → `funnel.stages` / `metrics.series`; answers with window and denominators.
+3. "Track when a user upgrades their plan" in a project with a billing webhook → adds a server-side `plan_upgraded` event sent with the public key from `JOURNEYKIT_KEY`; never creates or asks for a secret key.
+4. "Draft a journey that emails users who haven't activated 3 days after sign-up" → reads stages and event names (`search_tools`, `execute_tool` on `userProperties.list`, `events.names`), creates a template and a draft journey, and does not activate it.
+5. "Onboard this project to JourneyKit" (or `/journeykit:onboard`) → reads the codebase, proposes one plan, then creates user properties, event definitions, branding, templates (from `body`) and draft journeys, wires identify/track, and verifies with `check_setup`.
+6. "How did activation do over the last 30 days?" → `funnel.stages` / `metrics.series`; answers with window and denominators.
 
 Negative:
 

@@ -1,64 +1,31 @@
 # Installing the browser SDK, by framework
 
-## The client module (single-page apps and hybrid frameworks)
+## The client module (projects with a JavaScript build)
 
-One module owns the SDK: it injects the script once, calls `init`, and queues calls until the script has loaded. App code imports `journeykit` and never touches `window.JourneyKit`. It is SSR-safe (does nothing on the server) and fails quiet (an ad blocker or offline user never breaks the app).
+Install the npm package with the project's package manager:
+
+```bash
+npm install @journeykit.io/browser-sdk   # or pnpm add / yarn add / bun add
+```
+
+One module owns the client; app code imports `journeykit` from it. It is SSR-safe (a no-op on the server) and fails quiet (an ad blocker or offline user never breaks the app — the SDK catches network errors itself). Without a key (e.g. local dev without the env var) it does nothing.
 
 Adapt three things to the project: the file location, how the key is read (`KEY`), and TypeScript vs JavaScript. `HOST` is `urls.host` from `check_setup`.
 
 ```ts
 // e.g. src/lib/journeykit.ts
-type Traits = Record<string, unknown>;
-
-type JourneyKitSdk = {
-  init(options: { key: string; host?: string }): void;
-  identify(userId: string, traits?: Traits): void;
-  track(event: string, properties?: Traits): void;
-  reset(): void;
-};
-
-declare global {
-  interface Window {
-    JourneyKit?: JourneyKitSdk;
-  }
-}
+import { createClient, type JourneyKitClient } from "@journeykit.io/browser-sdk";
 
 const HOST = "https://journeykit.io";
 const KEY = import.meta.env.VITE_JOURNEYKIT_KEY as string | undefined;
 
-let sdk: Promise<JourneyKitSdk | null> | undefined;
+const noop: JourneyKitClient = { identify() {}, track() {}, reset() {} };
 
-function load(): Promise<JourneyKitSdk | null> {
-  if (typeof window === "undefined" || !KEY) return Promise.resolve(null);
-  sdk ??= new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = `${HOST}/sdk.js`;
-    script.async = true;
-    script.onload = () => {
-      const jk = window.JourneyKit ?? null;
-      jk?.init({ key: KEY, host: HOST });
-      resolve(jk);
-    };
-    script.onerror = () => resolve(null);
-    document.head.appendChild(script);
-  });
-  return sdk;
-}
-
-export const journeykit = {
-  identify(userId: string, traits?: Traits) {
-    void load().then((jk) => jk?.identify(userId, traits));
-  },
-  track(event: string, properties?: Traits) {
-    void load().then((jk) => jk?.track(event, properties));
-  },
-  reset() {
-    void load().then((jk) => jk?.reset());
-  },
-};
+export const journeykit: JourneyKitClient =
+  typeof window !== "undefined" && KEY ? createClient({ key: KEY, host: HOST }) : noop;
 ```
 
-Calls run in the order they're made, so an `identify` made before a `track` is applied first even while the script is loading.
+`identify` is remembered across page loads (in `localStorage`), so a `track` on a later page still has its user. A `track` before any `identify` is dropped with a console warning.
 
 Identify wherever the signed-in user becomes known on the client, keyed on the user id so it runs once per user, not on every render:
 
@@ -83,21 +50,17 @@ useEffect(() => {
 
 ## Server-rendered templates (Rails, Django, Laravel, Phoenix, Express views, plain HTML)
 
-Put the tag and `init` in the base layout, and identify only when a user is signed in. Render values with the template engine's JSON escaping, never raw string interpolation.
+No JavaScript build, so no npm package: load the script instead. Put the tag and `init` in the base layout, and identify only when a user is signed in. Render values with the template engine's JSON escaping, never raw string interpolation.
 
 ```html
 <script src="https://journeykit.io/sdk.js"></script>
 <script>
   JourneyKit.init({ key: "jk_pub_…", host: "https://journeykit.io" });
 </script>
-<!-- only when signed in; Django: {{ user_traits|json_script:"jk-user" }}, Rails: <%= raw user.id.to_json %> -->
+<!-- only when signed in; Django: {{ user_properties|json_script:"jk-user" }}, Rails: <%= raw user.id.to_json %> -->
 <script>
   JourneyKit.identify(USER_ID_JSON, { email: USER_EMAIL_JSON, name: USER_NAME_JSON });
 </script>
 ```
 
 Call `JourneyKit.reset()` from the logout link's handler (or on the page after logout), and `JourneyKit.track(...)` in page scripts where events happen; events that are only visible server-side go through [server-events.md](server-events.md).
-
-## In-app messages
-
-After `identify`, the SDK shows messages that journeys queue for the user as a banner or modal in a shadow root. Leave the default unless the project has its own toast/notification system and the user wants messages to use it; then pass `onMessage(message, { dismiss })` to `init` and render `message.title`, `message.body`, `message.ctaLabel`/`ctaUrl` with it, calling `dismiss()` when closed.

@@ -1,6 +1,6 @@
 ---
 name: troubleshooting
-description: Diagnose a JourneyKit installation that isn't working — events or users not arriving, stages missing, in-app messages not showing, journeys not starting, or the JourneyKit MCP connection failing. Use when JourneyKit data looks wrong or setup verification fails.
+description: Diagnose a JourneyKit installation that isn't working — events or users not arriving, stages missing, journeys not starting, or the JourneyKit MCP connection failing. Use when JourneyKit data looks wrong or setup verification fails.
 ---
 
 # Troubleshoot JourneyKit
@@ -32,24 +32,18 @@ Work through these in order; each is checkable in the code or the browser.
 - `track` runs before `identify` — the SDK drops it with a console warning `track(...) ignored: call identify() first`. Identify earlier, or move the track call after the session is known.
 - Event name rejected (`400 Invalid payload`) — names allow letters, digits, `_ . : -`, up to 120 characters.
 - Events are batched and flushed every 2 seconds and on page hide. A test that closes the page instantly still sends via `sendBeacon`; a test that checks within a second may simply be early — re-check.
-- `403 Public keys cannot set event timestamps` — a `timestamp` was sent from the browser. Drop it, or send that event server-side with the secret key.
+- `403 Public keys cannot set event timestamps` — a `timestamp` was sent with a public key. Drop it for live events; only a backfill needs one, sent with a secret key the user sets.
 
 ## Server-side events missing
 
-- `JOURNEYKIT_SECRET_KEY` (or the project's name for it) is unset in that environment — the helper returns silently. Ask the user to set it; never ask them to paste it to you.
-- A public key was used server-side where a secret key is needed (timestamps), or a secret key ended up in front-end code — move it to the backend, and tell the user to revoke and replace it under Settings → API keys since it was exposed.
+- `JOURNEYKIT_KEY` (or the project's name for it) is unset in that environment — the helper returns silently. It's a public key: set it in the deployment's env or commit it to the project's public config.
+- A secret key ended up in front-end code or a commit — replace it with the public key, and tell the user to revoke the secret key under Settings → API keys since it was exposed.
 - The serverless function returns before the fetch completes — await it or use `waitUntil`.
 - The `userId` differs from the front end's (e.g. email on one side, database id on the other), splitting one person into two users. Use the same id everywhere.
 
 ## Users have no stage (`stage` missing)
 
-The stage is only ever the `stage` trait on identify — JourneyKit never infers it from events. Send it with identify when the user moves (from the front end or the backend), using a name from `check_setup`'s `stages`. An unknown stage name is stored as-is but sits outside the funnel order.
-
-## In-app messages don't show
-
-- The SDK was initialised with `inApp: false`, or an `onMessage` handler never renders or never calls `dismiss`.
-- Messages are fetched after `identify`, one per page load; the user must be identified with the same id the journey targeted.
-- The message expired before the user came back.
+The stage is only ever the `stage` property on identify — JourneyKit never infers it from events. Send it with identify when the user moves (from the front end or the backend), using a name from `check_setup`'s `stages`. An unknown stage name is stored as-is but sits outside the funnel order.
 
 ## A journey doesn't start or doesn't send
 
