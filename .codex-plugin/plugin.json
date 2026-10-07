@@ -1,6 +1,6 @@
 {
   "name": "journeykit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Set up JourneyKit in your product and run it from your coding agent: install the SDK, track events and lifecycle stages, verify data arrives, and build journeys.",
   "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
   "homepage": "https://docs.journeykit.io/docs/mcp",
@@ -21,7 +21,7 @@
     "privacyPolicyURL": "https://journeykit.io/privacy",
     "termsOfServiceURL": "https://journeykit.io/terms",
     "defaultPrompt": [
-      "Set up JourneyKit in this project",
+      "Onboard this project to JourneyKit",
       "Check whether events are reaching JourneyKit",
       "Draft a journey that nudges users who haven't activated"
     ],

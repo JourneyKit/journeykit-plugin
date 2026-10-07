@@ -16,7 +16,7 @@ Before proposing anything, ground it in what the workspace actually has:
 - `userProperties.list` — property keys and their types/options.
 - `segments.list`, `journeys.list`, `templates.list` — reuse before creating.
 
-If the events a request depends on aren't being tracked, say so and offer to add tracking (the `setup` skill) before building on them.
+If the events a request depends on aren't being tracked, say so and offer to add tracking (the `onboard` skill) before building on them.
 
 ## Build
 
