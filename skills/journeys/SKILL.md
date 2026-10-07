@@ -5,15 +5,15 @@ description: Build and measure JourneyKit journeys, segments and email templates
 
 # Journeys, segments and lifecycle data
 
-A **journey** is: a trigger (an event, a user property change, or a hand-over from another journey) → ordered steps (waits, conditions, branches, email / in-app message / webhook, property updates) → a measurement (goal event within a window, optional holdout). A **segment** is a saved set of conditions over user fields, stages and events. Everything is reached through the JourneyKit MCP server: `search_tools` to find operations, `describe_tools` to load their schema, `execute_tool` to run them. Describe an operation before its first execute; the schema is the contract.
+A **journey** is: a trigger (an event, a user property change, or a hand-over from another journey) → ordered steps (waits, conditions, branches, email / webhook, property updates) → a measurement (goal event within a window, optional holdout). A **segment** is a saved set of conditions over user fields, stages and events. Everything is reached through the JourneyKit MCP server: `search_tools` to find operations, `describe_tools` to load their schema, `execute_tool` to run them. Describe an operation before its first execute; the schema is the contract.
 
 ## Read the workspace first
 
 Before proposing anything, ground it in what the workspace actually has:
 
-- `lifecycle.stages` — the stage names, in order.
+- `userProperties.list` — the stage names, in order, are the `options` of the `stage` field.
 - `events.names` / `eventDefinitions.list` — event names that really arrive (a journey on a never-sent event never fires).
-- `userProperties.list` — trait keys and their types/options.
+- `userProperties.list` — property keys and their types/options.
 - `segments.list`, `journeys.list`, `templates.list` — reuse before creating.
 
 If the events a request depends on aren't being tracked, say so and offer to add tracking (the `setup` skill) before building on them.
@@ -22,7 +22,7 @@ If the events a request depends on aren't being tracked, say so and offer to add
 
 1. **Propose** in plain words: trigger, audience, steps with timings, message copy, goal event and window, holdout. Default to a 10% holdout when the user wants to know whether it works, and a goal event that is the behaviour the journey is for.
 2. **Segment** (if the audience is reusable): `segments.preview` first to show how many users match, then `segments.create`.
-3. **Email template** (for email steps): `templates.list` for one that fits, else `templates.create`. Offer `templates.sendTest` — it sends a real email to the signed-in user, so ask first.
+3. **Email template** (for email steps): `templates.list` for one that fits, else `templates.create` with the copy as `body` (simple HTML, `{{key}}` placeholders, `<a … data-button>` for the call to action) — the server applies the workspace's branding. Offer `templates.sendTest` — it sends a real email to the signed-in user, so ask first.
 4. **Journey**: `journeys.create`. It is created disabled (draft): nothing reaches users yet.
 5. **Check** it with `journeys.get` and walk the user through what will happen to whom.
 
