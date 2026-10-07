@@ -5,8 +5,10 @@
 Set up [JourneyKit](https://journeykit.io) by asking your coding agent. Install the plugin once, open your project, and say:
 
 ```text
-Set up JourneyKit in this project.
+Onboard this project to JourneyKit.
 ```
+
+In Claude Code, `/journeykit:onboard` does the same.
 
 The agent connects to your JourneyKit workspace (you sign in once in the browser), works out your framework and auth, adds the SDK, identifies signed-in users, tracks the events that matter, sends lifecycle stages, checks that data really arrives, and tells you what it changed.
 
@@ -47,6 +49,7 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 
 | Say | The agent |
 | --- | --- |
+| "Onboard this project to JourneyKit." (`/journeykit:onboard`) | Defines user fields and event types, installs and verifies the SDK, brands your emails, writes templates and drafts first journeys. |
 | "Set up JourneyKit in this project." | Installs and verifies the SDK, events, stages and (optionally) server-side events. |
 | "Track when a user upgrades their plan." | Adds the event where it happens, server-side if that's where it's visible. |
 | "Events aren't showing up in JourneyKit." | Diagnoses the install layer by layer and fixes it. |
@@ -63,6 +66,7 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 
 ```text
 skills/
+  onboard/          onboard a project end to end: data model, install, branding, emails, draft journeys
   setup/            install and verify JourneyKit in a codebase (the main workflow)
   troubleshooting/  diagnose missing data, connection and journey problems
   journeys/         build segments, emails and journeys; answer lifecycle questions
