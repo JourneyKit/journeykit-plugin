@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 (2026-10-09)
+
+- `onboard` gets a step to turn the drafted journeys on: it lists them, explains that activating takes effect immediately, offers test emails, and activates only the journeys the user names.
+
 ## 0.3.0 — 2026-10-07
 
 - `setup` is merged into `onboard`: one skill installs JourneyKit, and also handles smaller requests like tracking a new event. Its references moved to `skills/onboard/references/`.
