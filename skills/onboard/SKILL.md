@@ -7,7 +7,7 @@ description: Onboard a product to JourneyKit from its codebase — define user f
 
 You turn a codebase into a working JourneyKit workspace in one pass. You read the product, decide what to measure and what to send, make the workspace match (fields, events, branding, templates, journeys), and wire the code. The user approves one plan; everything else is your job.
 
-**Smaller requests.** When JourneyKit is already installed and the user only wants tracking added ("track when a user upgrades"), or only wants the SDK, do just the parts that apply: step 1, the relevant parts of step 2, a plan scoped to the request, the matching parts of steps 5–6, and step 8. Skip branding, templates and journeys unless asked.
+**Smaller requests.** When JourneyKit is already installed and the user only wants tracking added ("track when a user upgrades"), or only wants the SDK, do just the parts that apply: step 1, the relevant parts of step 2, a plan scoped to the request, the matching parts of steps 5–6, and step 9. Skip branding, templates and journeys unless asked.
 
 Everything in the workspace goes through the JourneyKit MCP server: `check_setup` and `create_public_key`, and `search_tools` → `describe_tools` → `execute_tool` for the rest of the API. Always `describe_tools` an operation before its first `execute_tool` — the schema is the contract, this file only names operations.
 
@@ -75,7 +75,7 @@ Show the user one compact plan and ask for a single go-ahead:
 - branding (colours, logo URL, preset if on free plan);
 - each journey in one line (trigger → steps → goal) and its emails' subjects.
 
-Ask only what you can't decide — typically which action is the core action, if the code doesn't make it obvious. Propose a default for everything so "yes" is enough. Apply their edits, then do steps 5–8 without further questions.
+Ask only what you can't decide — typically which action is the core action, if the code doesn't make it obvious. Propose a default for everything so "yes" is enough. Apply their edits, then do steps 5–7 and 9 without further questions; step 8 asks once more, because it reaches real users.
 
 ## Step 5 — Define the workspace
 
@@ -106,7 +106,19 @@ Done when: every event in the plan has exactly one call site, identify covers ev
 
 Done when: every planned journey exists as a draft whose templates and references all resolve.
 
-## Step 8 — Verify and report
+## Step 8: Turn the journeys on (ask first)
+
+Activating a journey takes effect immediately: it starts taking in users who match its trigger from that moment and sends them real emails. So never activate on the plan's go-ahead alone; ask now, separately.
+
+1. List the drafted journeys, one line each (trigger → steps → goal), and say plainly what turning them on means: matching users enter right away and get the emails.
+2. Ask which ones to turn on: all, some (by name), or none for now. Offer to send each template as a test to the user's inbox first (`templates.sendTest`) so they can read the emails before anyone else does.
+3. For each journey the user names, `journeys.setStatus` to `active`, then `journeys.get` to confirm the status. Leave the rest paused.
+
+If the user is unsure, leave everything paused and give them the link to review and switch them on themselves: `urls.host` + `/journeys`.
+
+Done when: every journey is either active because the user said so by name or "all", or paused.
+
+## Step 9 — Verify and report
 
 1. Note the time as `since`. If you can run the app, sign up or sign in and perform the core action; otherwise ask the user to, naming the exact action.
 2. `check_setup` with `since` (and `userId` if known): expect `recent.events > 0`, your event names in `recent.eventNames`, and the `identify` and `track` checks `ok`. If not, use the `troubleshooting` skill, fix and repeat.
@@ -114,7 +126,7 @@ Done when: every planned journey exists as a draft whose templates and reference
 3. Report, briefly:
    - fields, events and branding now defined in the workspace;
    - code changes, file by file, and the package installed;
-   - the journeys drafted (one line each) with their emails, and the link to review them: `urls.host` + `/journeys`;
-   - what's left for the user: deploy, set the public key in production if it isn't committed, CSP in production, turn on the journeys they like (offer to do it, or to send test emails to their inbox first).
+   - the journeys (one line each) with their emails, which are active and which are paused, and the link to review them: `urls.host` + `/journeys`;
+   - what's left for the user: deploy, set the public key in production if it isn't committed, CSP in production, turn on any journeys still paused.
 
 No key beyond a public key's prefix in the report.
