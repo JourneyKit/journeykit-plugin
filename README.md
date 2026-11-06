@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/logo.png" width="72" alt="JourneyKit"></p>
+![JourneyKit](assets/logo.png)
 
 # JourneyKit plugin
 
@@ -67,6 +67,17 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 - Existing configuration is never overwritten without asking.
 - Workflows are created paused. Turning one on, sending a broadcast or issue, and deleting or archiving anything happen only when you say so.
 
+## Data and network access
+
+The plugin is skills and one MCP server. It has no hooks, scripts or local server, and it collects no telemetry of its own.
+
+- **Connection:** the plugin's one server is `https://journeykit.io/api/mcp`. You sign in with OAuth and pick one workspace, and the agent gets read and write access to that workspace only. During `onboard` the agent may also open your own live site to read your branding, and it installs the SDK from npm.
+- **What's sent to JourneyKit:** what the work needs: event and field names taken from your code, branding such as colors and your logo URL, email copy, and whatever you ask it to create or import, including contact lists. Your source code itself isn't uploaded.
+- **What's read back:** workspace data you ask about, such as contacts, reports and setup status. Contact records are personal data and enter the conversation with your agent when it reads them.
+- **Changes to your project:** `onboard` installs the `@journeykit.io/browser-sdk` npm package and adds tracking calls, which then send your contacts and events to JourneyKit from your own app.
+
+See the [privacy policy](https://journeykit.io/privacy) and [terms](https://journeykit.io/terms). Disconnect any time under **Settings → Connected apps**.
+
 ## What's inside
 
 ```text
@@ -83,13 +94,13 @@ plugin.json         Agent Plugins manifest
 .agents/plugins/    Codex marketplace
 ```
 
-Skills tell the agent *how* to do the work; the MCP server at `https://journeykit.io/api/mcp` gives it the *tools*: `check_setup` and `create_public_key` for installation, and `search_tools` / `describe_tools` / `execute_tool` over the whole [JourneyKit API](https://docs.journeykit.io/docs/reference). See the [MCP docs](https://docs.journeykit.io/docs/mcp).
+Skills tell the agent *how* to do the work; the MCP server at `https://journeykit.io/api/mcp` gives it the *tools*: `check_setup` and `create_public_key` for installation, and one tool for each operation of the [JourneyKit API](https://docs.journeykit.io/docs/reference), such as `contacts_list` and `workflows_create`. See the [MCP docs](https://docs.journeykit.io/docs/mcp).
 
 ## Development
 
 ```bash
 node scripts/validate.mjs            # manifests, MCP configs and skills agree
-claude plugin validate .             # Claude Code's own validator
+claude plugin validate . --profile directory --strict  # Claude Code's validator, with the directory rules
 claude --plugin-dir .                # try the plugin locally in Claude Code
 ```
 

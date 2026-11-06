@@ -14,7 +14,11 @@ const fail = (where, message) => errors.push(`${where}: ${message}`);
 const NAME = "journeykit";
 const MCP_URL = "https://journeykit.io/api/mcp";
 /** Tools the JourneyKit MCP server exposes; skills may only reference these. */
-const MCP_TOOLS = ["check_setup", "create_public_key", "search_tools", "describe_tools", "execute_tool"];
+const MCP_TOOLS = ["check_setup", "create_public_key"];
+/** Tools the server no longer has: each operation is now a tool of its own. */
+const REMOVED_TOOLS = /`(search_tools|describe_tools|execute_tool)`/g;
+/** Operations named the old way; tool names are snake_case, like `contact_properties_list`. */
+const DOTTED_OPERATION = /`(broadcasts|contactProperties|contacts|email|eventDefinitions|events|insights|leadMagnets|metrics|newsletters|presets|segments|workflows)\.[a-zA-Z.]+`/g;
 /** Names the API dropped in the Contacts and Workflows rename; skills must use the current ones. */
 const REMOVED = /`(journeys|users|userProperties|funnel)\.[a-zA-Z.]+`/g;
 
@@ -134,8 +138,10 @@ for (const { name: dir } of skills) {
   }
   if (/jk_(live|pub)_[0-9a-f]{8,}/.test(text)) fail(path, "must not contain an API key");
   for (const [name] of body.matchAll(REMOVED)) fail(path, `removed operation ${name}`);
+  for (const [name] of body.matchAll(REMOVED_TOOLS)) fail(path, `removed tool ${name}`);
+  for (const [name] of body.matchAll(DOTTED_OPERATION)) fail(path, `${name} must use the tool's snake_case name`);
   for (const [, tool] of body.matchAll(/`([a-z]+_[a-z_]+)`/g)) {
-    if (/^(check|create|search|describe|execute)_/.test(tool) && !MCP_TOOLS.includes(tool)) fail(path, `unknown MCP tool "${tool}"`);
+    if (/^(check|create)_/.test(tool) && !MCP_TOOLS.includes(tool)) fail(path, `unknown MCP tool "${tool}"`);
   }
 }
 

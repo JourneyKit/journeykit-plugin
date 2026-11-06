@@ -9,13 +9,13 @@ You turn a codebase into a working JourneyKit workspace in one pass. You read th
 
 **Smaller requests.** When JourneyKit is already installed and the user only wants tracking added ("track when a user upgrades"), or only wants the SDK, do just the parts that apply: step 1, the relevant parts of step 2, a plan scoped to the request, the matching parts of steps 5–6, and step 9. Skip branding, sender, presets and workflows unless asked.
 
-Everything in the workspace goes through the JourneyKit MCP server: `check_setup` and `create_public_key`, and `search_tools` → `describe_tools` → `execute_tool` for the rest of the API. Always `describe_tools` an operation before its first `execute_tool`: the schema is the contract, this file only names operations.
+Everything in the workspace goes through the JourneyKit MCP server, where each operation is its own tool. Check the input schema of a tool you are calling; it is the contract, and this file only names tools.
 
 ## Ground rules
 
 - **One key, created by you.** Call `create_public_key` once. A public key (`jk_pub_…`) can only identify, track and sign people up, so it is safe in front-end code, in commits and in server env. The browser SDK and backend calls both use it. Never create, ask for or handle a secret key (`jk_live_…`); it is only needed to backfill history with timestamps, and the user creates that themselves.
 - **Reuse before creating.** The workspace may not be empty. Match existing fields, event definitions, presets and workflows by key/name and update or skip them; never create duplicates. The same goes for the codebase: if it already has JourneyKit code, a key or env vars, show the user what's there and ask before replacing anything.
-- **Nothing reaches contacts without the user.** A workflow with steps goes live on creation unless told otherwise, so every `workflows.create` passes `status: "paused"`. Activating a workflow (`workflows.setStatus`), sending a test email and deleting anything happen only when the user says so.
+- **Nothing reaches contacts without the user.** A workflow with steps goes live on creation unless told otherwise, so every `workflows_create` passes `status: "paused"`. Activating a workflow (`workflows_set_status`), sending a test email and deleting anything happen only when the user says so.
 - **The project's conventions win.** Package manager, env-var naming, file layout, code style. If it already wraps another analytics tool (Segment, PostHog, Amplitude, a `track()` helper), add JourneyKit inside that wrapper instead of sprinkling new calls.
 - **Personal data stays minimal.** Never send passwords, tokens, payment details or free-text content. `email` and `name` are built in; send other personal fields only when a workflow or segment needs them.
 
@@ -23,7 +23,7 @@ Everything in the workspace goes through the JourneyKit MCP server: `check_setup
 
 1. `check_setup`. If the tools are missing or unauthorized, ask the user to connect (Claude Code: `/mcp` → `journeykit` → authenticate; Codex: `codex mcp login journeykit`; Cursor: Settings → MCP → JourneyKit → Connect) and retry. Tell the user which workspace you're connected to; if it's the wrong one, they reconnect and pick another on the consent screen.
    If they can't connect, continue in *manual mode* with just the code: the user creates a public key under Settings → API keys and pastes it to you (a public key is fine to paste), the host is `https://journeykit.io`, workspace changes (fields, events, branding, sender, presets, workflows) are listed in the report for the user to make, and verification becomes "check Contacts in the dashboard".
-2. Read what exists: `contactProperties.list`, `eventDefinitions.list`, `email.branding.get`, `email.branding.presets`, `presets.list`, `workflows.list`, `email.domain.get`, `email.postalAddress.get`.
+2. Read what exists: `contact_properties_list`, `event_definitions_list`, `email_branding_get`, `email_branding_presets`, `presets_list`, `workflows_list`, `email_domain_get`, `email_postal_address_get`.
 
 Done when: you know the workspace, its key prefixes, its sender, and what's already defined.
 
@@ -48,9 +48,9 @@ Work it all out before touching anything.
 
 **Contact fields.** A workspace starts with only `id`, `name` and `email`. From the user model, pick the fields a segment or workflow would use: first name, plan, role, company, signup source, trial end, locale, counts of core objects, onboarding flags, under conventional keys (`firstName`, `plan`, `company`, `source`, `trialEndsAt`, `locale`). Types: `string`, `number`, `boolean`, `date` (ISO 8601), `enum` (with its `options`, copied exactly from the code's enum values), `object`, `array`. Keys in camelCase.
 
-**Event types.** From the actions in step 2.4, pick 5–15 that describe progress through the product: sign-up, onboarding steps, the core action, collaboration (invites), billing (trial started, subscription started/cancelled), and drop-off signals. Use the standard names where they fit (`eventDefinitions.addTemplates` lists them in its schema); otherwise `object_verb` in snake_case, past tense (`report_exported`). For each: description, its properties with types, and the file and line where it happens, after success, not on click.
+**Event types.** From the actions in step 2.4, pick 5–15 that describe progress through the product: sign-up, onboarding steps, the core action, collaboration (invites), billing (trial started, subscription started/cancelled), and drop-off signals. Use the standard names where they fit (`event_definitions_add_templates` lists them in its schema); otherwise `object_verb` in snake_case, past tense (`report_exported`). For each: description, its properties with types, and the file and line where it happens, after success, not on click.
 
-**Email branding.** Logo URL (absolute, publicly reachable: a file under the site's public folder on its production URL), `primaryColor` from the brand colour, background/container/text colours, `fontFamily` (the closest of `system`, `serif` or `mono`), radii from the product's UI, `footerText` with the company name and a line on why the recipient gets the email. If `email.branding.presets` says `customLooks: false`, choose the preset whose look is closest and send it unchanged; logo and footer are always yours to set.
+**Email branding.** Logo URL (absolute, publicly reachable: a file under the site's public folder on its production URL), `primaryColor` from the brand colour, background/container/text colours, `fontFamily` (the closest of `system`, `serif` or `mono`), radii from the product's UI, `footerText` with the company name and a line on why the recipient gets the email. If `email_branding_presets` says `customLooks: false`, choose the preset whose look is closest and send it unchanged; logo and footer are always yours to set.
 
 **Sender.** The postal address that goes in every footer; marketing email legally needs one and broadcasts refuse to send without it. Look for it in the site's footer, imprint or terms, and ask if it isn't there. If the workspace is on a paid plan and has no verified domain, propose the product's domain as the sending domain.
 
@@ -81,10 +81,10 @@ Ask only what you can't decide, typically which action is the core action, if th
 
 ## Step 5: Define the workspace
 
-1. **Fields:** `contactProperties.create` for each new field; `contactProperties.update` where a key exists with the wrong type or options.
-2. **Events:** `eventDefinitions.addTemplates` for standard names, `eventDefinitions.create` for the rest, with description and properties; `eventDefinitions.update` for existing ones you've refined.
-3. **Branding:** `email.branding.update` with the full object (it replaces).
-4. **Sender:** `email.postalAddress.set`. For a sending domain, `email.domain.set`, give the user the DNS records it returns, and call `email.domain.verify` once they've added them. DNS can take a while, so it needn't finish here: name it in the report if it's pending.
+1. **Fields:** `contact_properties_create` for each new field; `contact_properties_update` where a key exists with the wrong type or options.
+2. **Events:** `event_definitions_add_templates` for standard names, `event_definitions_create` for the rest, with description and properties; `event_definitions_update` for existing ones you've refined.
+3. **Branding:** `email_branding_update` with the full object (it replaces).
+4. **Sender:** `email_postal_address_set`. For a sending domain, `email_domain_set`, give the user the DNS records it returns, and call `email_domain_verify` once they've added them. DNS can take a while, so it needn't finish here: name it in the report if it's pending.
 
 Done when: every field and event in the plan exists in the workspace with the agreed type.
 
@@ -105,9 +105,9 @@ Done when: every event in the plan has exactly one call site, identify covers ev
 
 ## Step 7: Presets and workflows
 
-1. **Presets:** `presets.create` per email with `name`, `subject`, `previewText`, `parameters` and `body`: simple HTML (`<h1>`, `<p>`, `<ul>`, `<a href="…" data-button>Call to action</a>`) with `{{key}}` placeholders. Pass `body` instead of `html`/`text`/`document`: the server applies the workspace branding and makes it editable in the dashboard. Reuse an existing preset with the same purpose instead (`presets.update` if its copy should change).
-2. **Workflows:** `workflows.create` per workflow with `status: "paused"`: trigger, steps, goal, 10% holdout. Email steps use `presetId` to reference the presets from 1 and bind every required parameter (`firstName` → `{ "kind": "contact", "path": "properties.firstName" }`). Every event and property a workflow references must exist from step 5.
-3. `workflows.get` each one and check that it matches the plan and its status is `paused`.
+1. **Presets:** `presets_create` per email with `name`, `subject`, `previewText`, `parameters` and `body`: simple HTML (`<h1>`, `<p>`, `<ul>`, `<a href="…" data-button>Call to action</a>`) with `{{key}}` placeholders. Pass `body` instead of `html`/`text`/`document`: the server applies the workspace branding and makes it editable in the dashboard. Reuse an existing preset with the same purpose instead (`presets_update` if its copy should change).
+2. **Workflows:** `workflows_create` per workflow with `status: "paused"`: trigger, steps, goal, 10% holdout. Email steps use `presetId` to reference the presets from 1 and bind every required parameter (`firstName` → `{ "kind": "contact", "path": "properties.firstName" }`). Every event and property a workflow references must exist from step 5.
+3. `workflows_get` each one and check that it matches the plan and its status is `paused`.
 
 Done when: every planned workflow exists paused, with its presets and references all resolved.
 
@@ -116,8 +116,8 @@ Done when: every planned workflow exists paused, with its presets and references
 Activating a workflow takes effect immediately: it starts taking in contacts who match its trigger from that moment and sends them real emails. So never activate on the plan's go-ahead alone; ask now, separately.
 
 1. List the paused workflows, one line each (trigger → steps → goal), and say plainly what turning them on means: matching contacts enter right away and get the emails.
-2. Ask which ones to turn on: all, some (by name), or none for now. Offer to send each preset as a test to the user's inbox first (`presets.sendTest`) so they can read the emails before anyone else does.
-3. For each workflow the user names, `workflows.setStatus` to `active`, then `workflows.get` to confirm the status. Leave the rest paused.
+2. Ask which ones to turn on: all, some (by name), or none for now. Offer to send each preset as a test to the user's inbox first (`presets_send_test`) so they can read the emails before anyone else does.
+3. For each workflow the user names, `workflows_set_status` to `active`, then `workflows_get` to confirm the status. Leave the rest paused.
 
 If the user is unsure, leave everything paused and give them the link to review and switch them on themselves: `urls.host` + `/workflows`.
 

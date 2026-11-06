@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 (2026-11-06)
+
+Needs the JourneyKit MCP server with one tool per operation.
+
+- The server no longer has `search_tools`, `describe_tools` and `execute_tool`: each operation is its own tool, named in snake_case, like `contact_properties_list`. Every skill uses the new names.
+- `scripts/validate.mjs` rejects the old tools and dotted operation names.
+- The README lists what the plugin connects to and sends, and `PUBLISHING.md` follows Anthropic's developer portal.
+
 ## 0.5.0 (2026-11-06)
 
 Follows JourneyKit's move to an email marketing platform.
