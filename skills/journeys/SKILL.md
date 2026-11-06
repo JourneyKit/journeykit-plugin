@@ -1,6 +1,6 @@
 ---
 name: journeys
-description: Build and measure JourneyKit journeys, segments and email templates, and answer lifecycle questions (activation, conversion, funnel, journey results) from workspace data. Use when asked to create a journey, nudge, onboarding or win-back flow, segment, or email, or how users or a journey are doing.
+description: Build and measure JourneyKit journeys, segments and email presets, and answer lifecycle questions (activation, conversion, funnel, journey results) from workspace data. Use when asked to create a journey, nudge, onboarding or win-back flow, segment, or email, or how users or a journey are doing.
 ---
 
 # Journeys, segments and lifecycle data
@@ -14,7 +14,7 @@ Before proposing anything, ground it in what the workspace actually has:
 - `userProperties.list` — the stage names, in order, are the `options` of the `stage` field.
 - `events.names` / `eventDefinitions.list` — event names that really arrive (a journey on a never-sent event never fires).
 - `userProperties.list` — property keys and their types/options.
-- `segments.list`, `journeys.list`, `templates.list` — reuse before creating.
+- `segments.list`, `journeys.list`, `presets.list` — reuse before creating.
 
 If the events a request depends on aren't being tracked, say so and offer to add tracking (the `onboard` skill) before building on them.
 
@@ -22,7 +22,7 @@ If the events a request depends on aren't being tracked, say so and offer to add
 
 1. **Propose** in plain words: trigger, audience, steps with timings, message copy, goal event and window, holdout. Default to a 10% holdout when the user wants to know whether it works, and a goal event that is the behaviour the journey is for.
 2. **Segment** (if the audience is reusable): `segments.preview` first to show how many users match, then `segments.create`.
-3. **Email template** (for email steps): `templates.list` for one that fits, else `templates.create` with the copy as `body` (simple HTML, `{{key}}` placeholders, `<a … data-button>` for the call to action) — the server applies the workspace's branding. Offer `templates.sendTest` — it sends a real email to the signed-in user, so ask first.
+3. **Email preset** (for email steps): `presets.list` for one that fits, else `presets.create` with the copy as `body` (simple HTML, `{{key}}` placeholders, `<a … data-button>` for the call to action) — the server applies the workspace's branding. Offer `presets.sendTest` — it sends a real email to the signed-in user, so ask first.
 4. **Journey**: `journeys.create`. It is created disabled (draft): nothing reaches users yet.
 5. **Check** it with `journeys.get` and walk the user through what will happen to whom.
 
@@ -30,7 +30,7 @@ Done when: the journey exists as a draft that matches the approved proposal, wit
 
 ## Go live — always the user's call
 
-`journeys.setStatus` to `active` starts sending real messages to real users; `paused` stops new entries. Deleting journeys, segments, templates, users or definitions cannot be undone. Run these only after the user explicitly says to, naming the journey or record, in the current conversation.
+`journeys.setStatus` to `active` starts sending real messages to real users; `paused` stops new entries. Deleting journeys, segments, presets, users or definitions cannot be undone. Run these only after the user explicitly says to, naming the journey or record, in the current conversation.
 
 ## Measure and answer questions
 

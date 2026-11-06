@@ -1,20 +1,20 @@
 ---
 name: onboard
-description: Onboard a product to JourneyKit from its codebase — define user fields and event types in the workspace, install the SDK and add identify/track calls, match email branding to the product, write email templates and draft journeys. Use when the user runs /journeykit:onboard, asks to onboard, set up, install or integrate JourneyKit, or asks to track a new event with JourneyKit.
+description: Onboard a product to JourneyKit from its codebase — define user fields and event types in the workspace, install the SDK and add identify/track calls, match email branding to the product, write email presets and draft journeys. Use when the user runs /journeykit:onboard, asks to onboard, set up, install or integrate JourneyKit, or asks to track a new event with JourneyKit.
 ---
 
 # Onboard a product to JourneyKit
 
-You turn a codebase into a working JourneyKit workspace in one pass. You read the product, decide what to measure and what to send, make the workspace match (fields, events, branding, templates, journeys), and wire the code. The user approves one plan; everything else is your job.
+You turn a codebase into a working JourneyKit workspace in one pass. You read the product, decide what to measure and what to send, make the workspace match (fields, events, branding, presets, journeys), and wire the code. The user approves one plan; everything else is your job.
 
-**Smaller requests.** When JourneyKit is already installed and the user only wants tracking added ("track when a user upgrades"), or only wants the SDK, do just the parts that apply: step 1, the relevant parts of step 2, a plan scoped to the request, the matching parts of steps 5–6, and step 9. Skip branding, templates and journeys unless asked.
+**Smaller requests.** When JourneyKit is already installed and the user only wants tracking added ("track when a user upgrades"), or only wants the SDK, do just the parts that apply: step 1, the relevant parts of step 2, a plan scoped to the request, the matching parts of steps 5–6, and step 9. Skip branding, presets and journeys unless asked.
 
 Everything in the workspace goes through the JourneyKit MCP server: `check_setup` and `create_public_key`, and `search_tools` → `describe_tools` → `execute_tool` for the rest of the API. Always `describe_tools` an operation before its first `execute_tool` — the schema is the contract, this file only names operations.
 
 ## Ground rules
 
 - **One key, created by you.** Call `create_public_key` once. A public key (`jk_pub_…`) can only identify and track, so it is safe in front-end code, in commits and in server env. The browser SDK and backend calls both use it. Never create, ask for or handle a secret key (`jk_live_…`); it is only needed to backfill history with timestamps, and the user creates that themselves.
-- **Reuse before creating.** The workspace may not be empty. Match existing fields, event definitions, templates and journeys by key/name and update or skip them; never create duplicates. The same goes for the codebase: if it already has JourneyKit code, a key or env vars, show the user what's there and ask before replacing anything.
+- **Reuse before creating.** The workspace may not be empty. Match existing fields, event definitions, presets and journeys by key/name and update or skip them; never create duplicates. The same goes for the codebase: if it already has JourneyKit code, a key or env vars, show the user what's there and ask before replacing anything.
 - **Nothing reaches end users without the user.** Journeys are created as drafts. Activating a journey (`journeys.setStatus`), sending a test email and deleting anything happen only when the user says so.
 - **The project's conventions win.** Package manager, env-var naming, file layout, code style. If it already wraps another analytics tool (Segment, PostHog, Amplitude, a `track()` helper), add JourneyKit inside that wrapper instead of sprinkling new calls.
 - **Personal data stays minimal.** Never send passwords, tokens, payment details or free-text content. `email` and `name` are built in; send other personal fields only when a journey or segment needs them.
@@ -22,8 +22,8 @@ Everything in the workspace goes through the JourneyKit MCP server: `check_setup
 ## Step 1 — Connect and read the workspace
 
 1. `check_setup`. If the tools are missing or unauthorized, ask the user to connect (Claude Code: `/mcp` → `journeykit` → authenticate; Codex: `codex mcp login journeykit`; Cursor: Settings → MCP → JourneyKit → Connect) and retry. Tell the user which workspace you're connected to; if it's the wrong one, they reconnect and pick another on the consent screen.
-   If they can't connect, continue in *manual mode* with just the code: the user creates a public key under Settings → API keys and pastes it to you (a public key is fine to paste), the host is `https://journeykit.io`, workspace changes (fields, events, branding, templates, journeys) are listed in the report for the user to make, and verification becomes "check Users in the dashboard".
-2. Read what exists: `userProperties.list` (the `stage` field's `options` are the lifecycle stages, in order), `eventDefinitions.list`, `email.branding.get`, `email.branding.presets`, `templates.list`, `journeys.list`, `templates.sender`.
+   If they can't connect, continue in *manual mode* with just the code: the user creates a public key under Settings → API keys and pastes it to you (a public key is fine to paste), the host is `https://journeykit.io`, workspace changes (fields, events, branding, presets, journeys) are listed in the report for the user to make, and verification becomes "check Users in the dashboard".
+2. Read what exists: `userProperties.list` (the `stage` field's `options` are the lifecycle stages, in order), `eventDefinitions.list`, `email.branding.get`, `email.branding.presets`, `presets.list`, `journeys.list`, `presets.sender`.
 
 Done when: you know the workspace, its stages, its key prefixes, and what's already defined.
 
@@ -63,7 +63,7 @@ Work it all out before touching anything.
 | Win-back | `subscription_cancelled` | wait 7d → email | `subscription_started` |
 | Milestone | Nth core action (`increment` + property trigger) | celebrate + next step | a deeper action |
 
-Each email is a template: name, subject, preview text, a short body in the product's voice (read the marketing copy), one clear call to action as a button linking to the right page of the app, and `{{key}}` parameters (usually `firstName`, bound to the user field, with a sample). Keep emails under ~120 words.
+Each email is a preset: name, subject, preview text, a short body in the product's voice (read the marketing copy), one clear call to action as a button linking to the right page of the app, and `{{key}}` parameters (usually `firstName`, bound to the user field, with a sample). Keep emails under ~120 words.
 
 ## Step 4 — Propose the plan, once
 
@@ -88,7 +88,7 @@ Done when: every field and event in the plan exists in the workspace with the ag
 ## Step 6 — Instrument the code
 
 1. **Key.** Reuse the project's existing public key if `check_setup` lists its prefix; otherwise `create_public_key` with `<project name>`. Write it where the project keeps public config (e.g. `VITE_JOURNEYKIT_KEY`, `NEXT_PUBLIC_JOURNEYKIT_KEY`), plus a placeholder line in `.env.example`, and make sure it reaches production builds (committed public config, or name it in the report as something to set in the deployment).
-2. **JavaScript or TypeScript front end:** install the npm package `@journeykit.io/browser-sdk` with the project's package manager and create one client with `createClient({ key, host })` (`host` = `urls.host`); it has `identify`, `track` and `reset`. Follow [references/frameworks.md](references/frameworks.md) for the client module and where identify/reset go. A front end with no JS build (plain HTML, server templates) can instead load the script from `urls.sdk`, which exposes the same calls on `window.JourneyKit` after `init({ key, host })`.
+2. **JavaScript or TypeScript front end:** install the npm package `@journeykit.io/browser-sdk` with the project's package manager and create one client with `createClient({ key, host })` (`host` = `urls.host`); it has `identify`, `track` and `reset`. Follow [references/frameworks.md](references/frameworks.md) for the client module and where identify/reset go. A front end with no JS build (plain HTML, server presets) can instead load the script from `urls.sdk`, which exposes the same calls on `window.JourneyKit` after `init({ key, host })`.
 3. **Anything else** (Python, Ruby, PHP, Go, Java, Elixir, …, or events only the backend sees): call the ingest REST API from the backend — `POST /api/ingest/identify` and `POST /api/ingest/track` with `Authorization: Bearer <public key>` — through one small helper in the project's language. Contract and helper: [references/server-events.md](references/server-events.md). For a server-rendered app with no JS build, identify on sign-up, login and profile change from the backend.
 4. **Identify** with the fields from step 5 wherever the user's data is known or changes: after sign-up and login, and after updates to plan, profile or the fields you defined. Include `stage` when the user moves stage, using only the workspace's stage names and derived from state the product already has. Identify runs before any track: track calls without an identified user are dropped.
 5. **Track** each event at the line where it succeeds, with its defined properties. Billing events go in the payment-provider webhook handler.
@@ -98,20 +98,20 @@ Done when: every field and event in the plan exists in the workspace with the ag
 
 Done when: every event in the plan has exactly one call site, identify covers every field you defined, and the project builds.
 
-## Step 7 — Templates and journeys
+## Step 7 — Presets and journeys
 
-1. **Templates:** `templates.create` per email with `name`, `subject`, `previewText`, `parameters` and `body` — simple HTML (`<h1>`, `<p>`, `<ul>`, `<a href="…" data-button>Call to action</a>`) with `{{key}}` placeholders. Pass `body` instead of `html`/`text`/`document`: the server applies the workspace branding and makes it editable in the dashboard. Reuse an existing template with the same purpose instead (`templates.update` if its copy should change).
-2. **Journeys:** `journeys.create` per journey — trigger, steps, goal, 10% holdout. Email steps reference the template ids from 1 and bind every required parameter (`firstName` → user field `properties.firstName`). Every event and property a journey references must exist from step 5. They are created disabled.
+1. **Presets:** `presets.create` per email with `name`, `subject`, `previewText`, `parameters` and `body` — simple HTML (`<h1>`, `<p>`, `<ul>`, `<a href="…" data-button>Call to action</a>`) with `{{key}}` placeholders. Pass `body` instead of `html`/`text`/`document`: the server applies the workspace branding and makes it editable in the dashboard. Reuse an existing preset with the same purpose instead (`presets.update` if its copy should change).
+2. **Journeys:** `journeys.create` per journey — trigger, steps, goal, 10% holdout. Email steps use `presetId` to reference the presets from 1 and bind every required parameter (`firstName` → user field `properties.firstName`). Every event and property a journey references must exist from step 5. They are created disabled.
 3. `journeys.get` each one and check it matches the plan.
 
-Done when: every planned journey exists as a draft whose templates and references all resolve.
+Done when: every planned journey exists as a draft whose presets and references all resolve.
 
 ## Step 8: Turn the journeys on (ask first)
 
 Activating a journey takes effect immediately: it starts taking in users who match its trigger from that moment and sends them real emails. So never activate on the plan's go-ahead alone; ask now, separately.
 
 1. List the drafted journeys, one line each (trigger → steps → goal), and say plainly what turning them on means: matching users enter right away and get the emails.
-2. Ask which ones to turn on: all, some (by name), or none for now. Offer to send each template as a test to the user's inbox first (`templates.sendTest`) so they can read the emails before anyone else does.
+2. Ask which ones to turn on: all, some (by name), or none for now. Offer to send each preset as a test to the user's inbox first (`presets.sendTest`) so they can read the emails before anyone else does.
 3. For each journey the user names, `journeys.setStatus` to `active`, then `journeys.get` to confirm the status. Leave the rest paused.
 
 If the user is unsure, leave everything paused and give them the link to review and switch them on themselves: `urls.host` + `/journeys`.

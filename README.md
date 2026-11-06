@@ -4,7 +4,7 @@
 
 Set up [JourneyKit](https://journeykit.io) by asking your coding agent. Install the plugin once, open your project, and run `/journeykit:onboard` (or say "Onboard this project to JourneyKit.").
 
-The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your user fields and event types in JourneyKit, adds the SDK and the tracking calls, matches your email branding to your product, writes email templates and drafts journeys that react to your events — then checks that data really arrives and tells you what it changed. Journeys stay drafts until you switch them on.
+The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your user fields and event types in JourneyKit, adds the SDK and the tracking calls, matches your email branding to your product, writes email presets and drafts journeys that react to your events — then checks that data really arrives and tells you what it changed. Journeys stay drafts until you switch them on.
 
 In Claude Code, one command installs the plugin and starts onboarding:
 
@@ -49,7 +49,7 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 
 | Say | The agent |
 | --- | --- |
-| "Onboard this project to JourneyKit." | The full first-time setup: fields, events, tracking code, branding, templates and draft journeys. |
+| "Onboard this project to JourneyKit." | The full first-time setup: fields, events, tracking code, branding, presets and draft journeys. |
 | "Track when a user upgrades their plan." | Adds the event where it happens, server-side if that's where it's visible. |
 | "Events aren't showing up in JourneyKit." | Diagnoses the install layer by layer and fixes it. |
 | "Draft a journey that nudges users who haven't activated after 3 days." | Builds the segment, email and journey as a draft, for you to switch on. |

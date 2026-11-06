@@ -18,7 +18,7 @@ The public directory (shared by ChatGPT and Codex) takes submissions through the
 
 - An OpenAI organization member with **Apps Management** write access, and completed identity verification.
 - **Domain verification** for `journeykit.io`: the portal gives a challenge token to serve as plain text at a `.well-known` path on the MCP server's domain — add it as a route in the web app.
-- A **reviewer account**: a JourneyKit login without MFA or email codes, in a workspace with sample users, events, a segment, a template and a journey (the emitter app can generate traffic). Credentials go in the portal's form, never in this repo.
+- A **reviewer account**: a JourneyKit login without MFA or email codes, in a workspace with sample users, events, a segment, a preset and a journey (the emitter app can generate traffic). Credentials go in the portal's form, never in this repo.
 - A short **video** of the setup flow end to end.
 - Upload a ZIP of this repository (`git archive -o journeykit-plugin.zip HEAD`). The listing comes from `.codex-plugin/plugin.json` → `interface`; `skills/` and `.mcp.json` are discovered from it. The portal scans the MCP server's tools and annotations.
 
@@ -29,8 +29,8 @@ Positive:
 1. "Set up JourneyKit in this project" in a Next.js app with auth → `check_setup`, `create_public_key`; adds the SDK module, identify on session, reset on logout, `account_created` and one core event; verifies with `check_setup` `since`.
 2. "Check whether events are reaching JourneyKit" → `check_setup` with `since`; reports the checklist and which events arrived.
 3. "Track when a user upgrades their plan" in a project with a billing webhook → adds a server-side `plan_upgraded` event sent with the public key from `JOURNEYKIT_KEY`; never creates or asks for a secret key.
-4. "Draft a journey that emails users who haven't activated 3 days after sign-up" → reads stages and event names (`search_tools`, `execute_tool` on `userProperties.list`, `events.names`), creates a template and a draft journey, and does not activate it.
-5. "Onboard this project to JourneyKit" (or `/journeykit:onboard`) → reads the codebase, proposes one plan, then creates user properties, event definitions, branding, templates (from `body`) and draft journeys, wires identify/track, and verifies with `check_setup`.
+4. "Draft a journey that emails users who haven't activated 3 days after sign-up" → reads stages and event names (`search_tools`, `execute_tool` on `userProperties.list`, `events.names`), creates a preset and a draft journey, and does not activate it.
+5. "Onboard this project to JourneyKit" (or `/journeykit:onboard`) → reads the codebase, proposes one plan, then creates user properties, event definitions, branding, presets (from `body`) and draft journeys, wires identify/track, and verifies with `check_setup`.
 6. "How did activation do over the last 30 days?" → `funnel.stages` / `metrics.series`; answers with window and denominators.
 
 Negative:
