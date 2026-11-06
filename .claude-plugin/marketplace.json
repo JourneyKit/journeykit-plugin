@@ -6,7 +6,7 @@
     {
       "name": "journeykit",
       "source": "./",
-      "description": "Set up JourneyKit in your product and run it from your coding agent.",
+      "description": "Set up and run JourneyKit email marketing from your coding agent.",
       "category": "development"
     }
   ]

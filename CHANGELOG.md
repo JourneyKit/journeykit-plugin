@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0 (2026-11-06)
+
+Follows JourneyKit's move to an email marketing platform.
+
+- Renamed throughout: users to contacts, journeys to workflows, templates to presets. Operations are now `contacts.*`, `contactProperties.*` and `workflows.*`; the ingest API takes `contactId`.
+- The `journeys` skill is now `workflows`, with the current step language and reports (`workflows.analytics`, `metrics.*`).
+- New `campaigns` skill: broadcasts, newsletters, lead magnets and contact imports.
+- `workflows.create` goes live by default, so every skill passes `status: "paused"`.
+- Lifecycle stages and `funnel.*` are gone from every skill.
+- `onboard` sets the postal address and sending domain, calls `page()`, can connect signup forms with `subscribe()` and `claim()`, and no longer expects standard fields or events to exist in a new workspace.
+- `troubleshooting` covers sending, signups and open and click tracking.
+- `scripts/validate.mjs` rejects names the API no longer has.
+
 ## 0.4.0 (2026-10-09)
 
 - `onboard` gets a step to turn the drafted journeys on: it lists them, explains that activating takes effect immediately, offers test emails, and activates only the journeys the user names.

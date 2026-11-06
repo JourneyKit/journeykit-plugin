@@ -4,7 +4,9 @@
 
 Set up [JourneyKit](https://journeykit.io) by asking your coding agent. Install the plugin once, open your project, and run `/journeykit:onboard` (or say "Onboard this project to JourneyKit.").
 
-The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your user fields and event types in JourneyKit, adds the SDK and the tracking calls, matches your email branding to your product, writes email presets and drafts journeys that react to your events — then checks that data really arrives and tells you what it changed. Journeys stay drafts until you switch them on.
+The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your contact fields and event types in JourneyKit, adds the SDK and the tracking calls, matches your email branding to your product, sets up your sender, writes email presets and builds workflows that react to your events. Then it checks that data really arrives and tells you what it changed. Workflows stay paused until you switch them on.
+
+After that, the same agent runs your email: broadcasts, newsletters, lead magnets, list imports and reports.
 
 In Claude Code, one command installs the plugin and starts onboarding:
 
@@ -43,31 +45,36 @@ Then run **Developer: Reload Window**.
 
 Add the MCP server `https://journeykit.io/api/mcp` (streamable HTTP, OAuth) and the skills from `skills/` the way your agent installs them, e.g. `npx skills add JourneyKit/journeykit-plugin`.
 
-The first time the agent uses JourneyKit, a browser window opens: sign in, pick the workspace, allow access. Disconnect any time under **Settings → AI assistants**.
+The first time the agent uses JourneyKit, a browser window opens: sign in, pick the workspace, allow access. Disconnect any time under **Settings → Connected apps**.
 
 ## What you can ask
 
 | Say | The agent |
 | --- | --- |
-| "Onboard this project to JourneyKit." | The full first-time setup: fields, events, tracking code, branding, presets and draft journeys. |
+| "Onboard this project to JourneyKit." | The full first-time setup: fields, events, tracking code, branding, sender, presets and paused workflows. |
 | "Track when a user upgrades their plan." | Adds the event where it happens, server-side if that's where it's visible. |
 | "Events aren't showing up in JourneyKit." | Diagnoses the install layer by layer and fixes it. |
-| "Draft a journey that nudges users who haven't activated after 3 days." | Builds the segment, email and journey as a draft, for you to switch on. |
-| "How did activation do last month?" | Answers from your workspace's funnel and metrics. |
+| "Build a workflow that nudges users who haven't activated after 3 days." | Builds the segment, email and workflow, paused, for you to switch on. |
+| "Announce the new pricing to everyone on a paid plan." | Writes the broadcast, shows you the audience size, and sends only on your word. |
+| "Start a monthly newsletter with a signup page." | Creates the newsletter, turns on its public page and adds the form to your site. |
+| "Give away our launch checklist for an email address." | Sets up the lead magnet, its form and the delivery email. |
+| "Import this CSV of subscribers." | Imports the list, keeps opt-outs out, and starts no workflows. |
+| "How did the welcome workflow do last month?" | Answers from your workflow reports and metrics, with lift against the holdout. |
 
 ## Safety
 
-- The agent only ever creates **public** keys (`jk_pub_…`), which can only identify users and track events — safe in front-end code, commits and server env; your browser and backend both send with it. **Secret** keys (`jk_live_…`) are only needed to backfill history, and are created by you under **Settings → API keys**.
+- The agent only ever creates **public** keys (`jk_pub_…`), which can only identify contacts, track events and sign people up. They're safe in front-end code, commits and server env, and your browser and backend both send with them. **Secret** keys (`jk_live_…`) are only needed to backfill history, and are created by you under **Settings → API keys**.
 - Existing configuration is never overwritten without asking.
-- Journeys are created as drafts. Turning one on, and deleting anything, happens only when you say so.
+- Workflows are created paused. Turning one on, sending a broadcast or issue, and deleting or archiving anything happen only when you say so.
 
 ## What's inside
 
 ```text
 skills/
-  onboard/          set up from the codebase: fields, events, tracking, branding, emails, journeys
-  troubleshooting/  diagnose missing data, connection and journey problems
-  journeys/         build segments, emails and journeys; answer lifecycle questions
+  onboard/          set up from the codebase: fields, events, tracking, branding, sender, emails, workflows
+  workflows/        build segments, presets and workflows; answer questions from your reports
+  campaigns/        broadcasts, newsletters, lead magnets and contact imports
+  troubleshooting/  diagnose missing data, connection, workflow, sending and signup problems
 .mcp.json           MCP server for Claude Code and Codex
 mcp.json            MCP server, Agent Plugins format (Cursor and others)
 plugin.json         Agent Plugins manifest

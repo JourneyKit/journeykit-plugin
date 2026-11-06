@@ -1,18 +1,18 @@
 {
   "name": "journeykit",
-  "version": "0.4.0",
-  "description": "Set up JourneyKit in your product and run it from your coding agent: install the SDK, track events and lifecycle stages, verify data arrives, and build journeys.",
+  "version": "0.5.0",
+  "description": "Set up and run JourneyKit, email marketing that responds to what your audience does, from your coding agent: install the SDK, track events, match your branding, build workflows, and send broadcasts, newsletters and lead magnets.",
   "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
   "homepage": "https://docs.journeykit.io/docs/mcp",
   "repository": "https://github.com/JourneyKit/journeykit-plugin",
   "license": "MIT",
-  "keywords": ["journeykit", "lifecycle-marketing", "analytics", "onboarding", "email", "mcp"],
+  "keywords": ["journeykit", "email-marketing", "newsletters", "marketing-automation", "email", "mcp"],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "JourneyKit",
-    "shortDescription": "Lifecycle journeys for apps",
-    "longDescription": "Install JourneyKit in your product without reading the docs. Your agent finds your framework, adds the browser SDK, identifies signed-in users, tracks the events that matter, sends lifecycle stages, and verifies that data reaches your workspace. Then build segments and journeys — automated emails and webhooks measured against a holdout — and ask how activation and conversion are doing, all from the same conversation.",
+    "shortDescription": "Email marketing for your app",
+    "longDescription": "Newsletters, lead magnets, broadcasts and automated workflows in one platform, set up by your agent. It finds your framework, adds the browser SDK, identifies signed-in users, tracks the events that matter, matches your email branding, and verifies that data reaches your workspace. Then build segments and workflows measured against a holdout, send a broadcast or newsletter issue, launch a lead magnet, and ask how it all did, from the same conversation.",
     "developerName": "JourneyKit",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],
@@ -23,7 +23,7 @@
     "defaultPrompt": [
       "Onboard this project to JourneyKit",
       "Check whether events are reaching JourneyKit",
-      "Draft a journey that nudges users who haven't activated"
+      "Build a workflow that nudges users who haven't activated"
     ],
     "brandColor": "#000000",
     "composerIcon": "./assets/logo.png",
