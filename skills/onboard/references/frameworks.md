@@ -8,7 +8,7 @@ Install the npm package with the project's package manager:
 npm install @journeykit.io/browser-sdk   # or pnpm add / yarn add / bun add
 ```
 
-One module owns the client; app code imports `journeykit` from it. It is SSR-safe (a no-op on the server) and fails quiet (an ad blocker or offline user never breaks the app — the SDK catches network errors itself). Without a key (e.g. local dev without the env var) it does nothing.
+One module owns the client; app code imports `journeykit` from it. It is SSR-safe (a no-op on the server) and fails quiet: the SDK catches network errors itself, so an ad blocker or offline user never breaks the app. Without a key (e.g. local dev without the env var) it does nothing.
 
 Adapt three things to the project: the file location, how the key is read (`KEY`), and TypeScript vs JavaScript. `HOST` is `urls.host` from `check_setup`.
 
@@ -19,7 +19,14 @@ import { createClient, type JourneyKitClient } from "@journeykit.io/browser-sdk"
 const HOST = "https://journeykit.io";
 const KEY = import.meta.env.VITE_JOURNEYKIT_KEY as string | undefined;
 
-const noop: JourneyKitClient = { identify() {}, track() {}, reset() {} };
+const noop = {
+  identify() {},
+  track() {},
+  page() {},
+  reset() {},
+  subscribe: async () => false,
+  claim: async () => false,
+} as JourneyKitClient;
 
 export const journeykit: JourneyKitClient =
   typeof window !== "undefined" && KEY ? createClient({ key: KEY, host: HOST }) : noop;
@@ -35,15 +42,17 @@ useEffect(() => {
 }, [user?.id]);
 ```
 
+Call `journeykit.page()` once per page: in a router's navigation hook in a single-page app, on load otherwise. Before `identify`, views wait in the browser (latest 20) along with where the visitor first came from, and go out when they identify; a visitor who never identifies sends nothing.
+
 ## Placement
 
 | Framework | Key from | Where identify/reset go |
 | --- | --- | --- |
-| **Next.js (App Router)** | `process.env.NEXT_PUBLIC_JOURNEYKIT_KEY` (literal access — Next inlines it at build) | A `"use client"` component rendered in the root layout that receives the user (or reads the session hook) and calls `identify` in an effect; `reset` in the sign-out handler. |
+| **Next.js (App Router)** | `process.env.NEXT_PUBLIC_JOURNEYKIT_KEY` (literal access: Next inlines it at build) | A `"use client"` component rendered in the root layout that receives the user (or reads the session hook) and calls `identify` in an effect; `reset` in the sign-out handler. |
 | **Next.js (Pages Router)** | `process.env.NEXT_PUBLIC_JOURNEYKIT_KEY` | `pages/_app` or the auth provider. |
 | **Vite SPA** (React, Vue, Svelte, Solid) | `import.meta.env.VITE_JOURNEYKIT_KEY` | The auth provider / session store, or the root component. |
 | **TanStack Start / Router** | `import.meta.env.VITE_JOURNEYKIT_KEY`, or the project's env module | An effect in the root route component or where the session is read. |
-| **Remix / React Router 7** | Not exposed to the client by default — follow the project's pattern (`window.ENV` from the root loader), or inline the public key | Root route component effect. |
+| **Remix / React Router 7** | Not exposed to the client by default. Follow the project's pattern (`window.ENV` from the root loader), or inline the public key | Root route component effect. |
 | **SvelteKit** | `import { PUBLIC_JOURNEYKIT_KEY } from "$env/static/public"` | Root `+layout.svelte`, in `onMount` / `$effect`, reading the user from layout data. |
 | **Nuxt** | `useRuntimeConfig().public.journeykitKey` (`NUXT_PUBLIC_JOURNEYKIT_KEY`, declared in `runtimeConfig.public`) | A client plugin, `plugins/journeykit.client.ts`, watching the user state. |
 | **Astro** | `import.meta.env.PUBLIC_JOURNEYKIT_KEY` | The island or client script that knows the user; for static pages, the server-rendered pattern below. |
@@ -56,6 +65,7 @@ No JavaScript build, so no npm package: load the script instead. Put the tag and
 <script src="https://journeykit.io/sdk.js"></script>
 <script>
   JourneyKit.init({ key: "jk_pub_…", host: "https://journeykit.io" });
+  JourneyKit.page();
 </script>
 <!-- only when signed in; Django: {{ user_properties|json_script:"jk-user" }}, Rails: <%= raw user.id.to_json %> -->
 <script>

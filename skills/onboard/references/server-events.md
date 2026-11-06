@@ -1,6 +1,6 @@
 # Server-side events
 
-Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers — and, in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, from the backend's env as `JOURNEYKIT_KEY`. Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
+Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers, and in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, from the backend's env as `JOURNEYKIT_KEY`. Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
 
 ## HTTP contract
 
@@ -8,14 +8,15 @@ Base URL: `urls.ingest` from `check_setup` (`https://journeykit.io/api/ingest`).
 
 | Request | Body | Response |
 | --- | --- | --- |
-| `POST /track` | `{ "userId", "event", "properties"?, "timestamp"? }` or `{ "events": [ … up to 500 ] }` | `202 { "accepted": n }` |
-| `POST /identify` | `{ "userId", "email"?, "name"?, "properties"? }` | `200` |
+| `POST /track` | `{ "contactId", "event", "properties"?, "timestamp"? }` or `{ "events": [ … up to 500 ] }` | `202 { "accepted": n }` |
+| `POST /identify` | `{ "contactId", "email"?, "name"?, "properties"? }` | `200` |
 
-- `userId` is the same id the front end passes to `identify`.
+- `contactId` is the same id the front end passes to `identify`.
 - `event`: letters, digits, `_ . : -`, up to 120 characters.
 - `timestamp` (ISO 8601) backfills history; only secret keys may set it (a public key with `timestamp` answers 403). Leave it out for live events.
-- Users are created on first sight, so a server event for a user the browser never identified still works.
-- Set the stage from the backend with `POST /identify` and `{ "properties": { "stage": "conversion" } }` when the backend is where the move happens (e.g. a subscription webhook).
+- Contacts are created on first sight, so a server event for someone the browser never identified still works.
+- Properties merge key by key; keys you leave out stay as they are.
+- Signups from a server form go to `POST https://journeykit.io/api/subscribe` with the same header: `{ "newsletter": slug, "email", "name"? }`, or `{ "leadMagnet": slug, "email", "name"?, "newsletters"? }`. It answers `200` for every outcome, so a form never reveals whether an address is known.
 
 ## Helper (TypeScript / Node 18+)
 
@@ -42,8 +43,8 @@ async function send(path: "track" | "identify", body: unknown) {
 }
 
 export const journeykit = {
-  track: (userId: string, event: string, properties?: Record<string, unknown>) => send("track", { userId, event, properties }),
-  identify: (userId: string, properties: Record<string, unknown>) => send("identify", { userId, properties }),
+  track: (contactId: string, event: string, properties?: Record<string, unknown>) => send("track", { contactId, event, properties }),
+  identify: (contactId: string, properties: Record<string, unknown>) => send("identify", { contactId, properties }),
 };
 ```
 

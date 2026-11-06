@@ -15,6 +15,8 @@ const NAME = "journeykit";
 const MCP_URL = "https://journeykit.io/api/mcp";
 /** Tools the JourneyKit MCP server exposes; skills may only reference these. */
 const MCP_TOOLS = ["check_setup", "create_public_key", "search_tools", "describe_tools", "execute_tool"];
+/** Names the API dropped in the Contacts and Workflows rename; skills must use the current ones. */
+const REMOVED = /`(journeys|users|userProperties|funnel)\.[a-zA-Z.]+`/g;
 
 function json(path) {
   const file = join(root, path);
@@ -131,6 +133,7 @@ for (const { name: dir } of skills) {
     if (!existsSync(join(dirname(file), target))) fail(path, `link "${target}" does not resolve`);
   }
   if (/jk_(live|pub)_[0-9a-f]{8,}/.test(text)) fail(path, "must not contain an API key");
+  for (const [name] of body.matchAll(REMOVED)) fail(path, `removed operation ${name}`);
   for (const [, tool] of body.matchAll(/`([a-z]+_[a-z_]+)`/g)) {
     if (/^(check|create|search|describe|execute)_/.test(tool) && !MCP_TOOLS.includes(tool)) fail(path, `unknown MCP tool "${tool}"`);
   }
