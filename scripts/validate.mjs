@@ -68,7 +68,7 @@ if (codex) {
   maxLength(`${where}.displayName`, ui.displayName, 30);
   maxLength(`${where}.shortDescription`, ui.shortDescription, 30);
   maxLength(`${where}.longDescription`, ui.longDescription, 4000);
-  maxLength(`${where}.developerName`, ui.developerName, 100);
+  maxLength(`${where}.developerName`, ui.developerName, 80);
   for (const key of ["websiteURL", "supportURL", "privacyPolicyURL", "termsOfServiceURL"]) {
     if (!/^https:\/\//.test(ui[key] ?? "")) fail(`${where}.${key}`, "must be an https URL");
   }
@@ -87,6 +87,29 @@ if (codexMarket && !(codexMarket.plugins ?? []).some((p) => p.name === NAME && p
   fail(".agents/plugins/marketplace.json", `must list "${NAME}" with source path "./"`);
 }
 
+// OpenAI consumes the portable extension in preference to the compatibility manifest.
+const openai = agent?.extensions?.["com.openai"];
+if (!openai) fail("plugin.json", "extensions.com.openai is required for publication");
+if (openai) {
+  if (JSON.stringify(openai.interface) !== JSON.stringify(codex?.interface)) fail("plugin.json", "OpenAI listing must match the Codex compatibility listing");
+  asset("plugin.json onboardingSkill", openai.onboardingSkill);
+  const cases = openai.review?.test_cases;
+  for (const [kind, count] of [["positive", 5], ["negative", 3]]) {
+    const entries = cases?.[kind];
+    if (!Array.isArray(entries) || entries.length !== count) {
+      fail(`plugin.json review.${kind}`, `exactly ${count} cases required`);
+      continue;
+    }
+    entries.forEach((entry, i) => {
+      const where = `plugin.json review.${kind}[${i}]`;
+      for (const field of ["description", "prompt", "expected_behavior", ...(kind === "positive" ? ["tools_triggered"] : [])]) maxLength(`${where}.${field}`, entry[field], 4000);
+      if (/search_tools|describe_tools|execute_tool/.test(entry.tools_triggered ?? "")) fail(where, "references removed meta-tools");
+    });
+  }
+  if (openai.review?.demo_recording_url && !/^https:\/\//.test(openai.review.demo_recording_url)) fail("plugin.json review.demo_recording_url", "must be an HTTPS URL");
+  maxLength("plugin.json release notes", openai.publication?.release_notes, 4000);
+}
+
 // --- MCP configs -----------------------------------------------------------
 
 const dotMcp = json(".mcp.json");
@@ -97,6 +120,12 @@ if (dotMcp && (server(dotMcp)?.type !== "http" || server(dotMcp)?.url !== MCP_UR
 }
 if (agentMcp) {
   if (agentMcp.$schema !== "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json") fail("mcp.json", "$schema must be the Agent Plugins 1.0.0 MCP schema");
+  const auth = server(agentMcp)?.extensions?.["com.openai"]?.auth;
+  if (auth?.type !== "oauth" || auth?.client?.mode !== "cimd") fail("mcp.json", "OpenAI OAuth must prefer CIMD");
+  for (const scope of ["journeykit:read", "journeykit:write", "offline_access"]) {
+    if (!auth?.baseScopes?.includes(scope)) fail("mcp.json", `missing OAuth scope ${scope}`);
+  }
+  if (auth?.clientSecret || server(agentMcp)?.headers) fail("mcp.json", "must not embed OAuth secrets or request headers");
   if (server(agentMcp)?.type !== "streamable-http" || server(agentMcp)?.url !== MCP_URL) {
     fail("mcp.json", `mcpServers.${NAME} must be { type: "streamable-http", url: "${MCP_URL}" }`);
   }

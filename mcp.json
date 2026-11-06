@@ -3,7 +3,23 @@
   "mcpServers": {
     "journeykit": {
       "type": "streamable-http",
-      "url": "https://journeykit.io/api/mcp"
+      "url": "https://journeykit.io/api/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "cimd"
+            },
+            "resource": "https://journeykit.io/api/mcp",
+            "baseScopes": [
+              "journeykit:read",
+              "journeykit:write",
+              "offline_access"
+            ]
+          }
+        }
+      }
     }
   }
 }

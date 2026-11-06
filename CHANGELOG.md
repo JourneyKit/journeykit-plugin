@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.1 (2026-11-06)
+
+- Add the OpenAI listing and onboarding entry point to the portable manifest.
+- Declare OAuth with CIMD and workspace scopes for the submission portal.
+- Bundle five positive and three negative review cases with expected tool calls.
+- Add a reproducible OpenAI submission ZIP command and metadata validation.
+
 ## 0.6.0 (2026-11-06)
 
 Needs the JourneyKit MCP server with one tool per operation.

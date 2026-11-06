@@ -2,3 +2,5 @@
 node_modules/
 .mcpb-cache/
 *.zip
+
+dist/
