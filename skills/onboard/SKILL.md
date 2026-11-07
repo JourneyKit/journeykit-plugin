@@ -52,7 +52,7 @@ Work it all out before touching anything.
 
 **Email branding.** Logo URL (absolute, publicly reachable: a file under the site's public folder on its production URL), `primaryColor` from the brand colour, background/container/text colours, `fontFamily` (the closest of `system`, `serif` or `mono`), radii from the product's UI, `footerText` with the company name and a line on why the recipient gets the email. If `email_branding_presets` says `customLooks: false`, choose the preset whose look is closest and send it unchanged; logo and footer are always yours to set.
 
-**Sender.** The postal address that goes in every footer; marketing email legally needs one and broadcasts refuse to send without it. Look for it in the site's footer, imprint or terms, and ask if it isn't there. If the workspace is on a paid plan and has no verified domain, propose the product's domain as the sending domain.
+**Sender.** The postal address that goes in every footer; marketing email legally needs one and broadcasts refuse to send without it. Look for it in the site's footer, imprint or terms, and ask if it isn't there. If the workspace has no verified domain, propose the product's domain as the sending domain.
 
 **Workflows and emails.** 3–5 workflows that react to the events and fields you just designed, each with a goal event. Fit them to the product; the usual starting set:
 
