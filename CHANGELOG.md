@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.7 (2026-11-07)
+
+- `.claude-plugin/plugin.json` sets `privacyPolicyUrl` (`https://journeykit.io/privacy`), so the directory doesn't have to take it from the README.
+
 ## 0.6.6 (2026-11-07)
 
 - The server helper and the browser client module name their variables `publicKey`, `ingestUrl` and `host` and build the `Authorization` header by concatenation, so no snippet looks like an env credential being sent. The server-side and troubleshooting text no longer names a `JOURNEYKIT_KEY` variable.
