@@ -2,6 +2,7 @@
 
 ## 0.6.2 (2026-11-07)
 
+- No skill snippet reads the key from the environment: the browser client module and the server helper take a `<public key>` placeholder the agent fills from the project's config, the framework table names the variable, and onboarding no longer suggests a `curl` check with the key. `scripts/validate.mjs` rejects env reads in skills.
 - The logo is `assets/logo.svg`, a vector trace of the old PNG, so the manifests no longer point at a binary file the directory scan can't read. `scripts/validate.mjs` requires manifest icons to be SVG.
 
 ## 0.6.1 (2026-11-07)

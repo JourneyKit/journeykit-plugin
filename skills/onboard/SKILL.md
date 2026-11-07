@@ -127,7 +127,6 @@ Done when: every workflow is either active because the user said so by name or "
 
 1. Note the time as `since`. If you can run the app, sign up or sign in and perform the core action; otherwise ask the user to, naming the exact action.
 2. `check_setup` with `since` (and `contactId` if known): expect `recent.events > 0`, your event names in `recent.eventNames`, and the `identify` and `track` checks `ok`. If not, use the `troubleshooting` skill, fix and repeat.
-   Sending a synthetic identify/track with `curl` and the public key proves the key and network path but creates a real contact in the workspace: do it only with the user's OK, with a `contactId` like `journeykit-setup-check`.
 3. Report, briefly:
    - fields, events, branding and sender now defined in the workspace;
    - code changes, file by file, and the package installed;

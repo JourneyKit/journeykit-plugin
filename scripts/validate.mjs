@@ -147,6 +147,18 @@ for (const { name: dir } of skills) {
   }
 }
 
+// The directory holds plugins whose code reads a credential and sends data.
+// Snippets take the public key as a `<public key>` placeholder instead.
+const ENV_READ = /process\.env|import\.meta\.env|os\.environ|getenv\(|ENV\[|useRuntimeConfig\(/;
+function markdown(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((d) =>
+    d.isDirectory() ? markdown(join(dir, d.name)) : d.name.endsWith(".md") ? [join(dir, d.name)] : [],
+  );
+}
+for (const file of existsSync(skillsDir) ? markdown(skillsDir) : []) {
+  if (ENV_READ.test(readFileSync(file, "utf8"))) fail(file.slice(root.length + 1), "must not read the key from the environment; use a <public key> placeholder");
+}
+
 // --- result ----------------------------------------------------------------
 
 if (errors.length) {

@@ -10,14 +10,14 @@ npm install @journeykit.io/browser-sdk   # or pnpm add / yarn add / bun add
 
 One module owns the client; app code imports `journeykit` from it. It is SSR-safe (a no-op on the server) and fails quiet: the SDK catches network errors itself, so an ad blocker or offline user never breaks the app. Without a key (e.g. local dev without the env var) it does nothing.
 
-Adapt three things to the project: the file location, how the key is read (`KEY`), and TypeScript vs JavaScript. Replace `<urls.host>` with the `urls.host` value from `check_setup`.
+Adapt the file location and TypeScript vs JavaScript to the project. Replace `<urls.host>` with the `urls.host` value from `check_setup`, and `<public key>` with how the project exposes public client config (the variable for each framework is in the table below), or the key itself, which is safe to commit.
 
 ```ts
 // e.g. src/lib/journeykit.ts
 import { createClient, type JourneyKitClient } from "@journeykit.io/browser-sdk";
 
 const HOST = "<urls.host>";
-const KEY = import.meta.env.VITE_JOURNEYKIT_KEY as string | undefined;
+const KEY: string | undefined = <public key>;
 
 const noop = {
   identify() {},
@@ -46,16 +46,16 @@ Call `journeykit.page()` once per page: in a router's navigation hook in a singl
 
 ## Placement
 
-| Framework | Key from | Where identify/reset go |
+| Framework | Public key variable | Where identify/reset go |
 | --- | --- | --- |
-| **Next.js (App Router)** | `process.env.NEXT_PUBLIC_JOURNEYKIT_KEY` (literal access: Next inlines it at build) | A `"use client"` component rendered in the root layout that receives the user (or reads the session hook) and calls `identify` in an effect; `reset` in the sign-out handler. |
-| **Next.js (Pages Router)** | `process.env.NEXT_PUBLIC_JOURNEYKIT_KEY` | `pages/_app` or the auth provider. |
-| **Vite SPA** (React, Vue, Svelte, Solid) | `import.meta.env.VITE_JOURNEYKIT_KEY` | The auth provider / session store, or the root component. |
-| **TanStack Start / Router** | `import.meta.env.VITE_JOURNEYKIT_KEY`, or the project's env module | An effect in the root route component or where the session is read. |
+| **Next.js (App Router)** | `NEXT_PUBLIC_JOURNEYKIT_KEY` (Next inlines it at build only when accessed by its full literal name) | A `"use client"` component rendered in the root layout that receives the user (or reads the session hook) and calls `identify` in an effect; `reset` in the sign-out handler. |
+| **Next.js (Pages Router)** | `NEXT_PUBLIC_JOURNEYKIT_KEY` | `pages/_app` or the auth provider. |
+| **Vite SPA** (React, Vue, Svelte, Solid) | `VITE_JOURNEYKIT_KEY` | The auth provider / session store, or the root component. |
+| **TanStack Start / Router** | `VITE_JOURNEYKIT_KEY`, or the project's env module | An effect in the root route component or where the session is read. |
 | **Remix / React Router 7** | Not exposed to the client by default. Follow the project's pattern (`window.ENV` from the root loader), or inline the public key | Root route component effect. |
-| **SvelteKit** | `import { PUBLIC_JOURNEYKIT_KEY } from "$env/static/public"` | Root `+layout.svelte`, in `onMount` / `$effect`, reading the user from layout data. |
-| **Nuxt** | `useRuntimeConfig().public.journeykitKey` (`NUXT_PUBLIC_JOURNEYKIT_KEY`, declared in `runtimeConfig.public`) | A client plugin, `plugins/journeykit.client.ts`, watching the user state. |
-| **Astro** | `import.meta.env.PUBLIC_JOURNEYKIT_KEY` | The island or client script that knows the user; for static pages, the server-rendered pattern below. |
+| **SvelteKit** | `PUBLIC_JOURNEYKIT_KEY` from `$env/static/public` | Root `+layout.svelte`, in `onMount` / `$effect`, reading the user from layout data. |
+| **Nuxt** | `NUXT_PUBLIC_JOURNEYKIT_KEY`, declared as `journeykitKey` in `runtimeConfig.public` | A client plugin, `plugins/journeykit.client.ts`, watching the user state. |
+| **Astro** | `PUBLIC_JOURNEYKIT_KEY` | The island or client script that knows the user; for static pages, the server-rendered pattern below. |
 
 ## Server-rendered templates (Rails, Django, Laravel, Phoenix, Express views, plain HTML)
 
