@@ -12,7 +12,6 @@ const errors = [];
 const fail = (where, message) => errors.push(`${where}: ${message}`);
 
 const pluginName = "journeykit";
-const mcpUrl = "https://journeykit.io/api/mcp";
 /** Tools the JourneyKit MCP server exposes; skills may only reference these. */
 const mcpTools = ["check_setup", "create_public_key"];
 /** Tools the server no longer has: each operation is now a tool of its own. */
@@ -61,6 +60,10 @@ for (const [path, manifest] of [["plugin.json", agent], [".claude-plugin/plugin.
 const versions = new Set([agent?.version, claude?.version, codex?.version]);
 if (versions.size > 1) fail("manifests", `versions differ: ${[...versions].join(", ")}`);
 
+// The MCP endpoint lives on the vendor's own site, the author URL in the Claude manifest.
+const mcpUrl = claude?.author?.url ? new URL("/api/mcp", claude.author.url).href : undefined;
+if (!mcpUrl) fail(".claude-plugin/plugin.json", "author.url is required");
+
 if (agent && agent.$schema !== "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json") fail("plugin.json", "$schema must be the Agent Plugins 1.0.0 schema");
 if (claude?.icon) asset(".claude-plugin/plugin.json icon", claude.icon);
 
@@ -104,7 +107,7 @@ if (agentMcp) {
   }
 }
 for (const [path, config] of [[".mcp.json", dotMcp], ["mcp.json", agentMcp]]) {
-  if (config && /jk_(live|pub)_/.test(JSON.stringify(config))) fail(path, "must not embed a jk_ token");
+  if (config && /jk_(live|pub)_/.test(JSON.stringify(config))) fail(path, "must not embed a workspace secret");
 }
 
 // --- skills ----------------------------------------------------------------
@@ -138,7 +141,7 @@ for (const { name: dir } of skills) {
     if (/^[a-z]+:/.test(target)) continue;
     if (!existsSync(join(dirname(file), target))) fail(path, `link "${target}" does not resolve`);
   }
-  if (/jk_(live|pub)_[0-9a-f]{8,}/.test(text)) fail(path, "must not embed a jk_ token");
+  if (/jk_(live|pub)_[0-9a-f]{8,}/.test(text)) fail(path, "must not embed a workspace secret");
   for (const [name] of body.matchAll(removedOperations)) fail(path, `removed operation ${name}`);
   for (const [name] of body.matchAll(removedTools)) fail(path, `removed tool ${name}`);
   for (const [name] of body.matchAll(dottedOperation)) fail(path, `${name} must use the tool's snake_case name`);
@@ -148,7 +151,7 @@ for (const { name: dir } of skills) {
 }
 
 // The directory holds plugins whose code reads a credential and sends data.
-// Snippets take the public key as a `<public key>` placeholder instead.
+// Snippets take a `<public key>` placeholder instead.
 // Written with [.] and [(] so this file doesn't itself spell an env read.
 const envRead = /process[.]env|import[.]meta[.]env|os[.]environ|getenv[(]|ENV\[|useRuntimeConfig[(]/;
 function markdown(dir) {
@@ -157,7 +160,7 @@ function markdown(dir) {
   );
 }
 for (const file of existsSync(skillsDir) ? markdown(skillsDir) : []) {
-  if (envRead.test(readFileSync(file, "utf8"))) fail(file.slice(root.length + 1), "must not read the key from the environment; use a <public key> placeholder");
+  if (envRead.test(readFileSync(file, "utf8"))) fail(file.slice(root.length + 1), "must not read env values; use a <public key> placeholder");
 }
 
 // --- result ----------------------------------------------------------------

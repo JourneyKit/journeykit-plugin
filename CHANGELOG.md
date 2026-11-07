@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4 (2026-11-07)
+
+- `scripts/validate.mjs` no longer spells the JourneyKit host: it builds the expected MCP URL from `author.url` in `.claude-plugin/plugin.json`. Its messages no longer talk about tokens or keys from the environment.
+
 ## 0.6.3 (2026-11-07)
 
 - `scripts/validate.mjs` no longer looks like it reads a credential: its constants are camelCase, so no `${NAME}`-style template reference sits next to the MCP URL, and its env-read check is written with `[.]`, so the file doesn't spell `process.env` itself. The script still reads no environment variables.
