@@ -1,4 +1,4 @@
-![JourneyKit](assets/logo.png)
+![JourneyKit](assets/logo.svg)
 
 # JourneyKit plugin
 

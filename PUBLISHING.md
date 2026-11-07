@@ -17,7 +17,7 @@ One listing reaches claude.ai, Cowork and Claude Code, where it loads as `journe
 - A **reviewer account**, as for OpenAI below: a fully populated workspace, with credentials entered only in the portal.
 - Every tool run once from a custom connector in Claude or MCP Inspector. The portal asks you to confirm this.
 - Universal URL, and sign-in through the server's own CIMD and dynamic registration, so no client goes in the portal.
-- Documentation `https://docs.journeykit.io/docs/mcp`, privacy `https://journeykit.io/privacy`, and the logo from the `assets` folder as the icon. The slug is permanent once published.
+- Documentation `https://docs.journeykit.io/docs/mcp`, privacy `https://journeykit.io/privacy`, and `assets/logo.svg` as the icon (export a PNG from it if the portal asks for one). The slug is permanent once published.
 
 **2. Plugin bundle** (Submit new → Plugin bundle), for `JourneyKit/journeykit-plugin` at the root, tracking `main`:
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.2 (2026-11-07)
+
+- The logo is `assets/logo.svg`, a vector trace of the old PNG, so the manifests no longer point at a binary file the directory scan can't read. `scripts/validate.mjs` requires manifest icons to be SVG.
+
 ## 0.6.1 (2026-11-07)
 
 - The onboard references no longer hardcode JourneyKit URLs next to the key: snippets use the `urls.host`, `urls.sdk` and `urls.ingest` values from `check_setup`.

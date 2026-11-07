@@ -35,6 +35,8 @@ function json(path) {
 function asset(where, path) {
   if (typeof path !== "string" || !path.startsWith("./")) return fail(where, `"${path}" must be a ./-relative path`);
   if (!existsSync(join(root, path))) fail(where, `"${path}" does not exist`);
+  // The directory scan holds plugins that point at images it can't read as text.
+  if (!path.endsWith(".svg")) fail(where, `"${path}" must be an SVG, not a binary image`);
 }
 
 function maxLength(where, value, limit) {
