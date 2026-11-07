@@ -13,7 +13,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Manifests, MCP configs and skills agree
-        run: node scripts/validate.mjs
       - name: Claude Code plugin validator
         run: npx -y @anthropic-ai/claude-code plugin validate . --profile directory --strict

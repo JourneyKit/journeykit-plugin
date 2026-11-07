@@ -99,12 +99,11 @@ Skills tell the agent *how* to do the work; the MCP server at `https://journeyki
 ## Development
 
 ```bash
-node scripts/validate.mjs            # manifests, MCP configs and skills agree
 claude plugin validate . --profile directory --strict  # Claude Code's validator, with the directory rules
 claude --plugin-dir .                # try the plugin locally in Claude Code
 ```
 
-Bump `version` in `plugin.json`, `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` together (the validator checks), and add a line to [CHANGELOG.md](CHANGELOG.md). Publishing to the agent directories is described in [PUBLISHING.md](PUBLISHING.md).
+Bump `version` in `plugin.json`, `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` together, and add a line to [CHANGELOG.md](CHANGELOG.md). Publishing to the agent directories is described in [PUBLISHING.md](PUBLISHING.md).
 
 ## License
 

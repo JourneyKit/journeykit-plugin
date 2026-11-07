@@ -2,7 +2,7 @@
 
 This repository is the single source of truth. Every directory below is fed from it; the MCP server is deployed separately with the JourneyKit app at `https://journeykit.io/api/mcp`.
 
-Before any submission: `node scripts/validate.mjs` and `claude plugin validate . --profile directory --strict` pass, versions are bumped together, and `CHANGELOG.md` has the release. The skills teach the SDK as it is in the app repo, so publish `@journeykit.io/browser-sdk` from `packages/browser-sdk` first whenever its calls changed.
+Before any submission: `claude plugin validate . --profile directory --strict` passes, versions are bumped together, and `CHANGELOG.md` has the release. The skills teach the SDK as it is in the app repo, so publish `@journeykit.io/browser-sdk` from `packages/browser-sdk` first whenever its calls changed.
 
 ## Claude Code
 
@@ -64,7 +64,7 @@ Negative:
 
 ## Cursor
 
-Submit the public repository at `cursor.com/marketplace/publish`. Cursor loads it through the Agent Plugins manifest (`plugin.json` + `mcp.json` + `skills/`). Their checklist: valid manifest, unique kebab-case name, description, valid skill frontmatter, relative paths, a README that documents configuration. All are covered by `scripts/validate.mjs`.
+Submit the public repository at `cursor.com/marketplace/publish`. Cursor loads it through the Agent Plugins manifest (`plugin.json` + `mcp.json` + `skills/`). Their checklist: valid manifest, unique kebab-case name, description, valid skill frontmatter, relative paths, a README that documents configuration. `claude plugin validate` covers the manifest and skill frontmatter.
 
 ## Other agents
 

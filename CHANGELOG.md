@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.5 (2026-11-07)
+
+- Removed `scripts/validate.mjs`, a development-only checker that shipped with the plugin. CI now runs only `claude plugin validate --profile directory --strict`.
+
 ## 0.6.4 (2026-11-07)
 
 - `scripts/validate.mjs` no longer spells the JourneyKit host: it builds the expected MCP URL from `author.url` in `.claude-plugin/plugin.json`. Its messages no longer talk about tokens or keys from the environment.
