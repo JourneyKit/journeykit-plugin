@@ -1,7 +1,7 @@
 {
   "name": "journeykit",
   "displayName": "JourneyKit",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Set up and run JourneyKit, email marketing that responds to what your audience does, from your coding agent: install the SDK, track events, match your branding, build workflows, and send broadcasts, newsletters and lead magnets.",
   "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
   "homepage": "https://docs.journeykit.io/docs/mcp",

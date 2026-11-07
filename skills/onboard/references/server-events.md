@@ -4,7 +4,7 @@ Send from the backend what the browser can't see: payments, renewals, cancellati
 
 ## HTTP contract
 
-Base URL: `urls.ingest` from `check_setup` (`https://journeykit.io/api/ingest`). Header `Authorization: Bearer <public key>`, `Content-Type: application/json`.
+Base URL: `urls.ingest` from `check_setup`. Header `Authorization: Bearer <public key>`, `Content-Type: application/json`.
 
 | Request | Body | Response |
 | --- | --- | --- |
@@ -16,15 +16,15 @@ Base URL: `urls.ingest` from `check_setup` (`https://journeykit.io/api/ingest`).
 - `timestamp` (ISO 8601) backfills history; only secret keys may set it (a public key with `timestamp` answers 403). Leave it out for live events.
 - Contacts are created on first sight, so a server event for someone the browser never identified still works.
 - Properties merge key by key; keys you leave out stay as they are.
-- Signups from a server form go to `POST https://journeykit.io/api/subscribe` with the same header: `{ "newsletter": slug, "email", "name"? }`, or `{ "leadMagnet": slug, "email", "name"?, "newsletters"? }`. It answers `200` for every outcome, so a form never reveals whether an address is known.
+- Signups from a server form go to `POST /api/subscribe` on `urls.host` with the same header: `{ "newsletter": slug, "email", "name"? }`, or `{ "leadMagnet": slug, "email", "name"?, "newsletters"? }`. It answers `200` for every outcome, so a form never reveals whether an address is known.
 
 ## Helper (TypeScript / Node 18+)
 
-Adapt the env access to the project (its env module, `process.env`, a config object).
+Adapt the env access to the project (its env module, `process.env`, a config object), and replace `<urls.ingest>` with the value from `check_setup`.
 
 ```ts
 // e.g. src/server/journeykit.ts
-const INGEST = "https://journeykit.io/api/ingest";
+const INGEST = "<urls.ingest>";
 
 async function send(path: "track" | "identify", body: unknown) {
   const key = process.env.JOURNEYKIT_KEY;
