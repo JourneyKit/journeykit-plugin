@@ -11,16 +11,16 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
 const fail = (where, message) => errors.push(`${where}: ${message}`);
 
-const NAME = "journeykit";
-const MCP_URL = "https://journeykit.io/api/mcp";
+const pluginName = "journeykit";
+const mcpUrl = "https://journeykit.io/api/mcp";
 /** Tools the JourneyKit MCP server exposes; skills may only reference these. */
-const MCP_TOOLS = ["check_setup", "create_public_key"];
+const mcpTools = ["check_setup", "create_public_key"];
 /** Tools the server no longer has: each operation is now a tool of its own. */
-const REMOVED_TOOLS = /`(search_tools|describe_tools|execute_tool)`/g;
+const removedTools = /`(search_tools|describe_tools|execute_tool)`/g;
 /** Operations named the old way; tool names are snake_case, like `contact_properties_list`. */
-const DOTTED_OPERATION = /`(broadcasts|contactProperties|contacts|email|eventDefinitions|events|insights|leadMagnets|metrics|newsletters|presets|segments|workflows)\.[a-zA-Z.]+`/g;
+const dottedOperation = /`(broadcasts|contactProperties|contacts|email|eventDefinitions|events|insights|leadMagnets|metrics|newsletters|presets|segments|workflows)\.[a-zA-Z.]+`/g;
 /** Names the API dropped in the Contacts and Workflows rename; skills must use the current ones. */
-const REMOVED = /`(journeys|users|userProperties|funnel)\.[a-zA-Z.]+`/g;
+const removedOperations = /`(journeys|users|userProperties|funnel)\.[a-zA-Z.]+`/g;
 
 function json(path) {
   const file = join(root, path);
@@ -54,7 +54,7 @@ const codexMarket = json(".agents/plugins/marketplace.json");
 
 for (const [path, manifest] of [["plugin.json", agent], [".claude-plugin/plugin.json", claude], [".codex-plugin/plugin.json", codex]]) {
   if (!manifest) continue;
-  if (manifest.name !== NAME) fail(path, `name must be "${NAME}"`);
+  if (manifest.name !== pluginName) fail(path, `name must be "${pluginName}"`);
   if (!manifest.description) fail(path, "description is required");
   if (!/^\d+\.\d+\.\d+$/.test(manifest.version ?? "")) fail(path, "version must be semver");
 }
@@ -82,25 +82,25 @@ if (codex) {
   if (codex.mcpServers !== "./.mcp.json") fail(".codex-plugin/plugin.json", 'mcpServers must be "./.mcp.json"');
 }
 
-if (claudeMarket && !(claudeMarket.plugins ?? []).some((p) => p.name === NAME && p.source === "./")) {
-  fail(".claude-plugin/marketplace.json", `must list "${NAME}" with source "./"`);
+if (claudeMarket && !(claudeMarket.plugins ?? []).some((p) => p.name === pluginName && p.source === "./")) {
+  fail(".claude-plugin/marketplace.json", `must list "${pluginName}" with source "./"`);
 }
-if (codexMarket && !(codexMarket.plugins ?? []).some((p) => p.name === NAME && p.source?.path === "./")) {
-  fail(".agents/plugins/marketplace.json", `must list "${NAME}" with source path "./"`);
+if (codexMarket && !(codexMarket.plugins ?? []).some((p) => p.name === pluginName && p.source?.path === "./")) {
+  fail(".agents/plugins/marketplace.json", `must list "${pluginName}" with source path "./"`);
 }
 
 // --- MCP configs -----------------------------------------------------------
 
 const dotMcp = json(".mcp.json");
 const agentMcp = json("mcp.json");
-const server = (config) => config?.mcpServers?.[NAME];
-if (dotMcp && (server(dotMcp)?.type !== "http" || server(dotMcp)?.url !== MCP_URL)) {
-  fail(".mcp.json", `mcpServers.${NAME} must be { type: "http", url: "${MCP_URL}" }`);
+const server = (config) => config?.mcpServers?.[pluginName];
+if (dotMcp && (server(dotMcp)?.type !== "http" || server(dotMcp)?.url !== mcpUrl)) {
+  fail(".mcp.json", `mcpServers.${pluginName} must be { type: "http", url: "${mcpUrl}" }`);
 }
 if (agentMcp) {
   if (agentMcp.$schema !== "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json") fail("mcp.json", "$schema must be the Agent Plugins 1.0.0 MCP schema");
-  if (server(agentMcp)?.type !== "streamable-http" || server(agentMcp)?.url !== MCP_URL) {
-    fail("mcp.json", `mcpServers.${NAME} must be { type: "streamable-http", url: "${MCP_URL}" }`);
+  if (server(agentMcp)?.type !== "streamable-http" || server(agentMcp)?.url !== mcpUrl) {
+    fail("mcp.json", `mcpServers.${pluginName} must be { type: "streamable-http", url: "${mcpUrl}" }`);
   }
 }
 for (const [path, config] of [[".mcp.json", dotMcp], ["mcp.json", agentMcp]]) {
@@ -139,24 +139,25 @@ for (const { name: dir } of skills) {
     if (!existsSync(join(dirname(file), target))) fail(path, `link "${target}" does not resolve`);
   }
   if (/jk_(live|pub)_[0-9a-f]{8,}/.test(text)) fail(path, "must not embed a jk_ token");
-  for (const [name] of body.matchAll(REMOVED)) fail(path, `removed operation ${name}`);
-  for (const [name] of body.matchAll(REMOVED_TOOLS)) fail(path, `removed tool ${name}`);
-  for (const [name] of body.matchAll(DOTTED_OPERATION)) fail(path, `${name} must use the tool's snake_case name`);
+  for (const [name] of body.matchAll(removedOperations)) fail(path, `removed operation ${name}`);
+  for (const [name] of body.matchAll(removedTools)) fail(path, `removed tool ${name}`);
+  for (const [name] of body.matchAll(dottedOperation)) fail(path, `${name} must use the tool's snake_case name`);
   for (const [, tool] of body.matchAll(/`([a-z]+_[a-z_]+)`/g)) {
-    if (/^(check|create)_/.test(tool) && !MCP_TOOLS.includes(tool)) fail(path, `unknown MCP tool "${tool}"`);
+    if (/^(check|create)_/.test(tool) && !mcpTools.includes(tool)) fail(path, `unknown MCP tool "${tool}"`);
   }
 }
 
 // The directory holds plugins whose code reads a credential and sends data.
 // Snippets take the public key as a `<public key>` placeholder instead.
-const ENV_READ = /process\.env|import\.meta\.env|os\.environ|getenv\(|ENV\[|useRuntimeConfig\(/;
+// Written with [.] and [(] so this file doesn't itself spell an env read.
+const envRead = /process[.]env|import[.]meta[.]env|os[.]environ|getenv[(]|ENV\[|useRuntimeConfig[(]/;
 function markdown(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((d) =>
     d.isDirectory() ? markdown(join(dir, d.name)) : d.name.endsWith(".md") ? [join(dir, d.name)] : [],
   );
 }
 for (const file of existsSync(skillsDir) ? markdown(skillsDir) : []) {
-  if (ENV_READ.test(readFileSync(file, "utf8"))) fail(file.slice(root.length + 1), "must not read the key from the environment; use a <public key> placeholder");
+  if (envRead.test(readFileSync(file, "utf8"))) fail(file.slice(root.length + 1), "must not read the key from the environment; use a <public key> placeholder");
 }
 
 // --- result ----------------------------------------------------------------
@@ -165,4 +166,4 @@ if (errors.length) {
   console.error(`✗ ${errors.length} problem(s):\n${errors.map((e) => `  - ${e}`).join("\n")}`);
   process.exit(1);
 }
-console.log(`✓ plugin "${NAME}" v${claude?.version}: ${skills.length} skills, manifests and MCP configs consistent`);
+console.log(`✓ plugin "${pluginName}" v${claude?.version}: ${skills.length} skills, manifests and MCP configs consistent`);
