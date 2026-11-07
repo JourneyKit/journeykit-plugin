@@ -1,7 +1,7 @@
 {
   "name": "journeykit",
-  "version": "0.6.8",
-  "description": "Set up and run JourneyKit, email marketing that responds to what your audience does, from your coding agent: install the SDK, track events, match your branding, build workflows, and send broadcasts, newsletters and lead magnets.",
+  "version": "0.6.9",
+  "description": "JourneyKit is an email marketing platform for newsletters, lead magnets, broadcasts and automated workflows. This plugin lets your coding agent set it up and run it: install the SDK, track events, match your branding, build segments and workflows, and send campaigns.",
   "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
   "homepage": "https://docs.journeykit.io/docs/mcp",
   "repository": "https://github.com/JourneyKit/journeykit-plugin",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.9 (2026-11-07)
+
+- The manifest description opens with what JourneyKit is, an email marketing platform for newsletters, lead magnets, broadcasts and automated workflows, then says what the plugin does.
+
 ## 0.6.8 (2026-11-07)
 
 - `.claude-plugin/plugin.json` sets `supportUrl` (the repository's issues page) again.
