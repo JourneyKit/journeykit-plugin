@@ -10,13 +10,13 @@ npm install @journeykit.io/browser-sdk   # or pnpm add / yarn add / bun add
 
 One module owns the client; app code imports `journeykit` from it. It is SSR-safe (a no-op on the server) and fails quiet: the SDK catches network errors itself, so an ad blocker or offline user never breaks the app. Without a key (e.g. local dev without the env var) it does nothing.
 
-Adapt three things to the project: the file location, how the key is read (`KEY`), and TypeScript vs JavaScript. `HOST` is `urls.host` from `check_setup`.
+Adapt three things to the project: the file location, how the key is read (`KEY`), and TypeScript vs JavaScript. Replace `<urls.host>` with the `urls.host` value from `check_setup`.
 
 ```ts
 // e.g. src/lib/journeykit.ts
 import { createClient, type JourneyKitClient } from "@journeykit.io/browser-sdk";
 
-const HOST = "https://journeykit.io";
+const HOST = "<urls.host>";
 const KEY = import.meta.env.VITE_JOURNEYKIT_KEY as string | undefined;
 
 const noop = {
@@ -59,12 +59,12 @@ Call `journeykit.page()` once per page: in a router's navigation hook in a singl
 
 ## Server-rendered templates (Rails, Django, Laravel, Phoenix, Express views, plain HTML)
 
-No JavaScript build, so no npm package: load the script instead. Put the tag and `init` in the base layout, and identify only when a user is signed in. Render values with the template engine's JSON escaping, never raw string interpolation.
+No JavaScript build, so no npm package: load the script instead (`<urls.sdk>` and `<urls.host>` are the values from `check_setup`). Put the tag and `init` in the base layout, and identify only when a user is signed in. Render values with the template engine's JSON escaping, never raw string interpolation.
 
 ```html
-<script src="https://journeykit.io/sdk.js"></script>
+<script src="<urls.sdk>"></script>
 <script>
-  JourneyKit.init({ key: "jk_pub_…", host: "https://journeykit.io" });
+  JourneyKit.init({ key: "jk_pub_…", host: "<urls.host>" });
   JourneyKit.page();
 </script>
 <!-- only when signed in; Django: {{ user_properties|json_script:"jk-user" }}, Rails: <%= raw user.id.to_json %> -->

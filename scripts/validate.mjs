@@ -69,13 +69,13 @@ if (codex) {
   maxLength(`${where}.shortDescription`, ui.shortDescription, 30);
   maxLength(`${where}.longDescription`, ui.longDescription, 4000);
   maxLength(`${where}.developerName`, ui.developerName, 100);
-  for (const key of ["websiteURL", "supportURL", "privacyPolicyURL", "termsOfServiceURL"]) {
-    if (!/^https:\/\//.test(ui[key] ?? "")) fail(`${where}.${key}`, "must be an https URL");
+  for (const field of ["websiteURL", "supportURL", "privacyPolicyURL", "termsOfServiceURL"]) {
+    if (!/^https:\/\//.test(ui[field] ?? "")) fail(`${where}.${field}`, "must be an https URL");
   }
   const prompts = [].concat(ui.defaultPrompt ?? []);
   if (prompts.length > 3) fail(`${where}.defaultPrompt`, "at most 3 prompts");
   prompts.forEach((prompt, i) => maxLength(`${where}.defaultPrompt[${i}]`, prompt, 128));
-  for (const key of ["composerIcon", "logo"]) asset(`${where}.${key}`, ui[key]);
+  for (const field of ["composerIcon", "logo"]) asset(`${where}.${field}`, ui[field]);
   if (codex.skills !== "./skills/") fail(".codex-plugin/plugin.json", 'skills must be "./skills/"');
   if (codex.mcpServers !== "./.mcp.json") fail(".codex-plugin/plugin.json", 'mcpServers must be "./.mcp.json"');
 }
@@ -102,7 +102,7 @@ if (agentMcp) {
   }
 }
 for (const [path, config] of [[".mcp.json", dotMcp], ["mcp.json", agentMcp]]) {
-  if (config && /jk_(live|pub)_/.test(JSON.stringify(config))) fail(path, "must not contain an API key");
+  if (config && /jk_(live|pub)_/.test(JSON.stringify(config))) fail(path, "must not embed a jk_ token");
 }
 
 // --- skills ----------------------------------------------------------------
@@ -125,7 +125,7 @@ for (const { name: dir } of skills) {
     continue;
   }
   const frontmatter = Object.fromEntries(
-    match[1].split("\n").map((line) => line.match(/^([a-z-]+):\s*(.*)$/)).filter(Boolean).map(([, key, value]) => [key, value.trim()]),
+    match[1].split("\n").map((line) => line.match(/^([a-z-]+):\s*(.*)$/)).filter(Boolean).map(([, field, value]) => [field, value.trim()]),
   );
   if (frontmatter.name !== dir) fail(path, `frontmatter name "${frontmatter.name}" must equal the directory name "${dir}"`);
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(dir) || dir.length > 64) fail(path, "name must be lowercase kebab-case, at most 64 characters");
@@ -136,7 +136,7 @@ for (const { name: dir } of skills) {
     if (/^[a-z]+:/.test(target)) continue;
     if (!existsSync(join(dirname(file), target))) fail(path, `link "${target}" does not resolve`);
   }
-  if (/jk_(live|pub)_[0-9a-f]{8,}/.test(text)) fail(path, "must not contain an API key");
+  if (/jk_(live|pub)_[0-9a-f]{8,}/.test(text)) fail(path, "must not embed a jk_ token");
   for (const [name] of body.matchAll(REMOVED)) fail(path, `removed operation ${name}`);
   for (const [name] of body.matchAll(REMOVED_TOOLS)) fail(path, `removed tool ${name}`);
   for (const [name] of body.matchAll(DOTTED_OPERATION)) fail(path, `${name} must use the tool's snake_case name`);

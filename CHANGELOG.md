@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1 (2026-11-07)
+
+- The onboard references no longer hardcode JourneyKit URLs next to the key: snippets use the `urls.host`, `urls.sdk` and `urls.ingest` values from `check_setup`.
+- `scripts/validate.mjs` names its loop variables `field` rather than `key`.
+
 ## 0.6.0 (2026-11-06)
 
 Needs the JourneyKit MCP server with one tool per operation.
