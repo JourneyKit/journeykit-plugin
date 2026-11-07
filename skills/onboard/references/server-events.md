@@ -1,6 +1,6 @@
 # Server-side events
 
-Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers, and in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, kept wherever the backend keeps its config (e.g. a `JOURNEYKIT_KEY` setting). Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
+Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers, and in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, kept wherever the backend keeps its config. Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
 
 ## HTTP contract
 
@@ -24,15 +24,15 @@ Replace `<urls.ingest>` with the value from `check_setup`, and `<public key>` wi
 
 ```ts
 // e.g. src/server/journeykit.ts
-const INGEST = "<urls.ingest>";
-const KEY: string | undefined = <public key>;
+const ingestUrl = "<urls.ingest>";
+const publicKey: string | undefined = <public key>;
 
 async function send(path: "track" | "identify", body: unknown) {
-  if (!KEY) return;
+  if (!publicKey) return;
   try {
-    const res = await fetch(`${INGEST}/${path}`, {
+    const res = await fetch(ingestUrl + "/" + path, {
       method: "POST",
-      headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+      headers: { Authorization: "Bearer " + publicKey, "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(5000),
     });

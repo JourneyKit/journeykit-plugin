@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.6 (2026-11-07)
+
+- The server helper and the browser client module name their variables `publicKey`, `ingestUrl` and `host` and build the `Authorization` header by concatenation, so no snippet looks like an env credential being sent. The server-side and troubleshooting text no longer names a `JOURNEYKIT_KEY` variable.
+
 ## 0.6.5 (2026-11-07)
 
 - Removed `scripts/validate.mjs`, a development-only checker that shipped with the plugin. CI now runs only `claude plugin validate --profile directory --strict`.

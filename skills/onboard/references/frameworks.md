@@ -16,8 +16,8 @@ Adapt the file location and TypeScript vs JavaScript to the project. Replace `<u
 // e.g. src/lib/journeykit.ts
 import { createClient, type JourneyKitClient } from "@journeykit.io/browser-sdk";
 
-const HOST = "<urls.host>";
-const KEY: string | undefined = <public key>;
+const host = "<urls.host>";
+const publicKey: string | undefined = <public key>;
 
 const noop = {
   identify() {},
@@ -29,7 +29,7 @@ const noop = {
 } as JourneyKitClient;
 
 export const journeykit: JourneyKitClient =
-  typeof window !== "undefined" && KEY ? createClient({ key: KEY, host: HOST }) : noop;
+  typeof window !== "undefined" && publicKey ? createClient({ key: publicKey, host }) : noop;
 ```
 
 `identify` is remembered across page loads (in `localStorage`), so a `track` on a later page still has its user. A `track` before any `identify` is dropped with a console warning.

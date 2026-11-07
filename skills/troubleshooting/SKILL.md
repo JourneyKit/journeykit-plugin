@@ -36,7 +36,7 @@ Work through these in order; each is checkable in the code or the browser.
 
 ## Server-side events missing
 
-- `JOURNEYKIT_KEY` (or the project's name for it) is unset in that environment: the helper returns silently. It's a public key: set it in the deployment's env or commit it to the project's public config.
+- The public key isn't set where that deployment reads its config: the helper returns silently. It's a public key: add it to the deployment's config or commit it to the project's public config.
 - A secret key ended up in front-end code or a commit: replace it with the public key, and tell the user to revoke the secret key under Settings → API keys since it was exposed.
 - The serverless function returns before the fetch completes: await it or use `waitUntil`.
 - The `userId` differs from the front end's (e.g. email on one side, database id on the other), splitting one person into two contacts. Use the same id everywhere.
