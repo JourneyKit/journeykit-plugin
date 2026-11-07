@@ -8,9 +8,5 @@
   "repository": "https://github.com/JourneyKit/journeykit-plugin",
   "license": "MIT",
   "keywords": ["journeykit", "email-marketing", "newsletters", "marketing-automation", "email", "mcp"],
-  "icon": "./assets/logo.svg",
-  "documentationUrl": "https://docs.journeykit.io/docs/mcp",
-  "supportUrl": "https://github.com/JourneyKit/journeykit-plugin/issues",
-  "privacyPolicyUrl": "https://journeykit.io/privacy",
-  "termsOfServiceUrl": "https://journeykit.io/terms"
+  "icon": "./assets/logo.svg"
 }
