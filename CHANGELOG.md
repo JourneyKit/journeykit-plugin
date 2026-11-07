@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.8 (2026-11-07)
+
+- `.claude-plugin/plugin.json` sets `supportUrl` (the repository's issues page) again.
+
 ## 0.6.7 (2026-11-07)
 
 - `.claude-plugin/plugin.json` sets `privacyPolicyUrl` (`https://journeykit.io/privacy`), so the directory doesn't have to take it from the README.
