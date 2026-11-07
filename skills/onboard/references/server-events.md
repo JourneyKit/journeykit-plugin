@@ -1,6 +1,6 @@
 # Server-side events
 
-Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers, and in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, from the backend's env as `JOURNEYKIT_KEY`. Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
+Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers, and in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, kept wherever the backend keeps its config (e.g. a `JOURNEYKIT_KEY` setting). Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
 
 ## HTTP contract
 
@@ -20,19 +20,19 @@ Base URL: `urls.ingest` from `check_setup`. Header `Authorization: Bearer <publi
 
 ## Helper (TypeScript / Node 18+)
 
-Adapt the env access to the project (its env module, `process.env`, a config object), and replace `<urls.ingest>` with the value from `check_setup`.
+Replace `<urls.ingest>` with the value from `check_setup`, and `<public key>` with how the project's backend gets the key: its config module or settings object, or the key itself, which is safe to commit.
 
 ```ts
 // e.g. src/server/journeykit.ts
 const INGEST = "<urls.ingest>";
+const KEY: string | undefined = <public key>;
 
 async function send(path: "track" | "identify", body: unknown) {
-  const key = process.env.JOURNEYKIT_KEY;
-  if (!key) return;
+  if (!KEY) return;
   try {
     const res = await fetch(`${INGEST}/${path}`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(5000),
     });
