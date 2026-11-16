@@ -1,21 +1,21 @@
 ---
 name: campaigns
-description: Run JourneyKit email campaigns from the conversation. Use when asked to send a broadcast or announcement, start or send a newsletter, grow subscribers with a signup form or lead magnet, or import a contact list.
+description: Run JourneyKit email campaigns from the conversation. Use when asked to send a broadcast or announcement, start or send a newsletter, start a waitlist or mailing list, grow subscribers with a signup form or lead magnet, or import a contact list.
 ---
 
-# Broadcasts, newsletters, lead magnets and imports
+# Broadcasts, lists, lead magnets and imports
 
 Everything goes through the JourneyKit MCP server. Each operation is its own tool, and its input schema is the contract; this file only names them.
 
 - A **broadcast** is one email, sent once to a segment or to every contact with an address.
-- A **newsletter** is a publication people subscribe to. Being a contact doesn't make someone a subscriber. An **issue** is a broadcast with a `newsletterId`.
+- A **list** is people who agreed to hear from the user: a newsletter, a waitlist, product updates. They're all the same thing; `preset` (`newsletter`, `waitlist`, `blank`) only prefills the wording of the emails made for it. Being a contact doesn't make someone a member. An **issue** is a broadcast with a `listId`.
 - A **lead magnet** is something given away for an email address.
 
 Automated sequences belong to the `workflows` skill.
 
 ## Read the workspace first
 
-`email_postal_address_get`, `email_domain_get`, `email_branding_get`, `contacts_count`, `segments_list`, `newsletters_list`, `lead_magnets_list`.
+`email_postal_address_get`, `email_domain_get`, `email_branding_get`, `contacts_count`, `segments_list`, `lists_list`, `lead_magnets_list`.
 
 Sending needs a postal address in the footer, so collect a missing one from the user and save it with `email_postal_address_set`. `broadcasts_send` refuses without it. Without a verified sending domain, email goes out from a shared address; mention that when it matters to the user, and use the `onboard` skill's sending step to set one up.
 
@@ -31,16 +31,18 @@ Report with `broadcasts_get`, `broadcasts_messages` and `broadcasts_links`.
 
 Done when: the broadcast is a draft the user has reviewed, or it is sent or scheduled on their word, and you've stated the audience count.
 
-## Newsletters
+## Lists
 
-1. `newsletters_create` needs a `name` and `replyTo`. `welcomeEmail: true` also creates a **live** workflow that emails each new subscriber, so say so before passing it.
-2. Add subscribers: `newsletters_add_segment` for a segment, `newsletters_add_subscribers` by contact id, or `contacts_import` with `newsletterId` for a list. Only `addSubscribers` starts workflows such as the welcome email; the bulk routes start none.
-3. Collect signups: `newsletters_set_public` turns on the page at `publicUrl`, `embedUrl` is an iframe form that works either way, and the SDK's `subscribe(email, { newsletter: slug, name })` serves the product's own form. The form must say what people are signing up for, because the call records their consent.
-4. Send an issue: `broadcasts_create` with `newsletterId` (`segmentId` narrows it to part of the subscribers, `subscribersOnly` keeps it off the public page), then the broadcast steps above. `broadcasts_set_subscribers_only` changes that after sending.
+1. `lists_create` needs a `name` and `replyTo`, and takes a `preset`. It always creates a **live** confirmation workflow (the email with the confirm link, editable with `workflows_update`). `welcomeEmail: true` adds a second **live** workflow that greets people once they confirm, so say so before passing it. `requireConfirmation: true` holds signups back until they click; leave it off for single opt-in, where they join at once and show as not confirmed until they click.
+2. Add members: `lists_add_segment` for a segment, `lists_add_subscribers` by contact id, or `contacts_import` with `listId` for a file. These count as confirmed already and send no confirmation email. Only `addSubscribers` starts workflows; the bulk routes start none.
+3. Collect signups: `lists_set_public` turns on the page at `publicUrl`, `embedUrl` is an iframe form that works either way, and the SDK's `subscribe(email, { list: slug, name })` serves the product's own form. The form must say what people are signing up for, because the call records their consent. A signup always creates the contact and sends the confirmation email. With `requireConfirmation` on, the person is `pending` and gets nothing until they click the link; a public SDK key can't claim someone confirmed. If the product has verified the address, call the REST API from the server with a live key instead.
+4. Send an issue: `broadcasts_create` with `listId` (`segmentId` narrows it to part of the members, `subscribersOnly` keeps it off the public page, `confirmedOnly` skips people who never clicked), then the broadcast steps above. `broadcasts_set_subscribers_only` changes that after sending. A waitlist's launch announcement is an issue sent to the list.
 
-Report with `newsletters_report`, `newsletters_subscribers` and the broadcast reports for each issue.
+`requireConfirmation` can only be turned on while the confirmation workflow is running: `lists_get` reports `confirmationReady`, and if it's false, activate the workflow named in `confirmationWorkflowId` first. To confirm someone yourself, for example when the product verifies their email, use the workflow step `confirm_subscription` (`listId`); it never undoes an opt-out. `lists_remove_unconfirmed` clears out signups who never confirmed and deletes a contact only when the signup was all there was to it; ask the user first.
 
-Opt-outs are permanent from our side: nobody who unsubscribed can be added back by a member, an import or a workflow; only they can return. `newsletters_remove_subscriber` is a member's removal, not an opt-out. `newsletters_archive` can't be undone and stops signups and sends, so it needs the user's word.
+Report with `lists_report`, `lists_subscribers` (`status: "pending"` for people waiting, `unconfirmed: true` for members who never clicked) and the broadcast reports for each issue.
+
+Opt-outs are permanent from our side: nobody who unsubscribed can be added back by a member, an import or a workflow; only they can return. `lists_remove_subscriber` is a member's removal, not an opt-out. `lists_archive` can't be undone and stops signups and sends, so it needs the user's word.
 
 ## Lead magnets
 
@@ -53,7 +55,7 @@ The `type` is fixed at creation:
 | `file` | An upload by the user on the lead magnet's Overview tab, which is dashboard-only |
 | `course` | Nothing. Creating it also creates a **live** workflow with three lesson emails, one a day, to edit with `workflows_update` |
 
-Attach `newsletterIds` with `newsletterConsent`: `included` says it plainly on the form, `checkbox` is an unticked box and the choice for EU audiences. Collect claims through `lead_magnets_set_public` (`publicUrl`), `embedUrl`, or the SDK's `claim(email, { leadMagnet: slug, name, newsletters })`, passing `newsletters: true` only when the box was ticked. Preview the delivery email with `lead_magnets_delivery_preview`, and report with `lead_magnets_get` and `lead_magnets_claims`.
+Attach `listIds` (a claim that joins a list follows that list's confirmation rule) with `listConsent`: `included` says it plainly on the form, `checkbox` is an unticked box and the choice for EU audiences. Collect claims through `lead_magnets_set_public` (`publicUrl`), `embedUrl`, or the SDK's `claim(email, { leadMagnet: slug, name, lists })`, passing `lists: true` only when the box was ticked. Preview the delivery email with `lead_magnets_delivery_preview`, and report with `lead_magnets_get` and `lead_magnets_claims`.
 
 `lead_magnets_archive` can't be undone, and it needs the user's word. To follow up, trigger a workflow on `lead_magnet_claimed` or `lead_magnet_opened`, switching on `leadMagnetId`.
 

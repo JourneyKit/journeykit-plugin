@@ -36,7 +36,7 @@ Read, don't guess. In roughly this order:
 3. **Auth.** Where sign-up completes, where the signed-in user becomes known on the client, where logout happens. The contact id is the product's stable user id, never the email.
 4. **What users do.** Routes, API handlers, server actions, mutations, form submits, background jobs and billing webhooks. List the actions that create or change something meaningful, with file and line.
 5. **Brand.** The website URL (README, `homepage`, `metadataBase`, `og:url`, env such as `APP_URL`), the logo (`public/`, `assets/`, favicon/apple-touch-icon, an `<svg>` logo component), theme colours (Tailwind theme, CSS variables like `--primary`, design tokens), fonts and corner radius. If you can fetch the live site, use it too.
-6. **Audience touchpoints.** Marketing pages to call `page()` on, and any newsletter, waitlist or "get the guide" forms that could use `subscribe()` or `claim()`.
+6. **Audience touchpoints.** Marketing pages to call `page()` on, and any newsletter, waitlist or "get the guide" forms (a waitlist is a list; see the `campaigns` skill) that could use `subscribe()` or `claim()`.
 7. **Stack.** Front-end framework and entry point, back-end language, package manager, env-var convention for public client config (`NEXT_PUBLIC_`, `VITE_`, `PUBLIC_`, …) and where examples live (`.env.example`), type-check/build/lint scripts, Content-Security-Policy (headers config, middleware, `<meta http-equiv>`).
 8. **Existing JourneyKit code and analytics.** Search for `journeykit`, `JourneyKit`, `jk_pub_`, `jk_live_`, `sdk.js`, and for an existing analytics wrapper.
 

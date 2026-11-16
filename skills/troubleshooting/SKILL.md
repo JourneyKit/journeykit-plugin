@@ -48,7 +48,7 @@ Read it with `workflows_get`, `workflows_runs` and `workflows_run`.
 - The workflow is `paused`: only `active` workflows enter contacts.
 - The trigger event name doesn't exactly match what's tracked (`check_setup` → `recent.eventNames`).
 - Re-entry is `once` and the contact already went through it.
-- The contact came from an import or a bulk newsletter add: those start no workflows.
+- The contact came from an import or a bulk list add: those start no workflows.
 - The first `check` step excluded the contact, so the run is `exited`.
 - An email step `skipped` (no address, or the address is suppressed) or `failed` (a required preset parameter resolved to nothing): `workflows_nudges_for_contact` shows which.
 - The contact landed in the holdout: the run is `exited` with no steps, by design.
@@ -56,23 +56,23 @@ Read it with `workflows_get`, `workflows_runs` and `workflows_run`.
 ## An email or broadcast doesn't go out
 
 - `broadcasts_send` refused: read its message. The usual causes are a missing postal address (`email_postal_address_set`) and a broadcast that isn't a `draft`.
-- Fewer recipients than expected: `broadcasts_audience` counts contacts with an address minus suppressed ones, and on an issue only active subscribers. A contact with neither a binding value nor a fallback for a `{{key}}` is left out; `broadcasts_messages` shows each recipient's status.
-- One person gets nothing: check `email_suppressions_list` (unsubscribed, bounced or complained). Only the person can undo an opt-out from a newsletter. `email_suppressions_remove` needs the user's word and their certainty that the person agreed.
+- Fewer recipients than expected: `broadcasts_audience` counts contacts with an address minus suppressed ones, and on an issue only active members (`confirmedOnly` also drops those who never clicked). A contact with neither a binding value nor a fallback for a `{{key}}` is left out; `broadcasts_messages` shows each recipient's status.
+- One person gets nothing: check `email_suppressions_list` (unsubscribed, bounced or complained). Only the person can undo an opt-out from a list. A member who is `pending` (a signup on a list that requires confirmation) gets nothing until they click the confirmation link: check `lists_subscribers` with `status: "pending"`, that the list's confirmation workflow is active (`lists_get` → `confirmationReady`), and its runs with `workflows_runs`. `email_suppressions_remove` needs the user's word and their certainty that the person agreed.
 - Sent from the wrong address: `email_domain_get` shows the DNS records, their status and the From header in use. `email_domain_verify` after DNS changes.
 - A sent message's content and delivery: `email_history`, `email_message`.
 
 ## Signups or lead magnet claims fail
 
-`POST /api/subscribe` answers the same `200` for every accepted outcome, so an opted-out or repeat address still looks like success. Check `newsletters_subscribers` or `lead_magnets_claims` for the record.
+`POST /api/subscribe` answers the same `200` for every accepted outcome, so an opted-out or repeat address still looks like success. Check `lists_subscribers` (a new signup on a list that requires confirmation is `pending`) or `lead_magnets_claims` for the record.
 
 | Response | Cause and fix |
 | --- | --- |
 | `401 Invalid API key` | The key was revoked or mistyped. |
-| `404` | The slug is wrong or belongs to another workspace, the newsletter or lead magnet is archived, or a lead magnet has nothing to deliver yet (`ready: false`). |
+| `404` | The slug is wrong or belongs to another workspace, the list or lead magnet is archived, or a lead magnet has nothing to deliver yet (`ready: false`). |
 | `429` | Too many tries from one IP. Wait, or test from elsewhere. |
 | `403` or `503` on a hosted form | The bot check failed or isn't configured. SDK calls with a key skip it. |
 
-A hosted page that 404s is off until `newsletters_set_public` or `lead_magnets_set_public`; embeds and the SDK work either way. A person who unsubscribed gets a confirmation email instead of being subscribed again.
+A hosted page that 404s is off until `lists_set_public` or `lead_magnets_set_public`; embeds and the SDK work either way. A person who unsubscribed gets a confirmation email instead of being subscribed again.
 
 ## Opens and clicks look wrong
 

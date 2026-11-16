@@ -6,7 +6,7 @@ Set up [JourneyKit](https://journeykit.io) by asking your coding agent. Install 
 
 The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your contact fields and event types in JourneyKit, adds the SDK and the tracking calls, matches your email branding to your product, sets up your sender, writes email presets and builds workflows that react to your events. Then it checks that data really arrives and tells you what it changed. Workflows stay paused until you switch them on.
 
-After that, the same agent runs your email: broadcasts, newsletters, lead magnets, list imports and reports.
+After that, the same agent runs your email: broadcasts, newsletters and waitlists, lead magnets, list imports and reports.
 
 In Claude Code, one command installs the plugin and starts onboarding:
 
@@ -56,7 +56,7 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 | "Events aren't showing up in JourneyKit." | Diagnoses the install layer by layer and fixes it. |
 | "Build a workflow that nudges users who haven't activated after 3 days." | Builds the segment, email and workflow, paused, for you to switch on. |
 | "Announce the new pricing to everyone on a paid plan." | Writes the broadcast, shows you the audience size, and sends only on your word. |
-| "Start a monthly newsletter with a signup page." | Creates the newsletter, turns on its public page and adds the form to your site. |
+| "Start a monthly newsletter with a signup page." | Creates the list, turns on its public page and adds the form to your site. |
 | "Give away our launch checklist for an email address." | Sets up the lead magnet, its form and the delivery email. |
 | "Import this CSV of subscribers." | Imports the list, keeps opt-outs out, and starts no workflows. |
 | "How did the welcome workflow do last month?" | Answers from your workflow reports and metrics, with lift against the holdout. |
@@ -84,7 +84,7 @@ See the [privacy policy](https://journeykit.io/privacy) and [terms](https://jour
 skills/
   onboard/          set up from the codebase: fields, events, tracking, branding, sender, emails, workflows
   workflows/        build segments, presets and workflows; answer questions from your reports
-  campaigns/        broadcasts, newsletters, lead magnets and contact imports
+  campaigns/        broadcasts, lists, lead magnets and contact imports
   troubleshooting/  diagnose missing data, connection, workflow, sending and signup problems
 .mcp.json           MCP server for Claude Code and Codex
 mcp.json            MCP server, Agent Plugins format (Cursor and others)

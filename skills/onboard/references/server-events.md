@@ -16,7 +16,7 @@ Base URL: `urls.ingest` from `check_setup`. Header `Authorization: Bearer <publi
 - `timestamp` (ISO 8601) backfills history; only secret keys may set it (a public key with `timestamp` answers 403). Leave it out for live events.
 - Contacts are created on first sight, so a server event for someone the browser never identified still works.
 - Properties merge key by key; keys you leave out stay as they are.
-- Signups from a server form go to `POST /api/subscribe` on `urls.host` with the same header: `{ "newsletter": slug, "email", "name"? }`, or `{ "leadMagnet": slug, "email", "name"?, "newsletters"? }`. It answers `200` for every outcome, so a form never reveals whether an address is known.
+- Signups from a server form go to `POST /api/subscribe` on `urls.host` with the same header: `{ "list": slug, "email", "name"? }`, or `{ "leadMagnet": slug, "email", "name"?, "lists"? }`. It answers `200` for every outcome, so a form never reveals whether an address is known, and a signup sends the list's confirmation email. A server calling it with a `jk_live_` key is treated as having verified the address: the person joins at once and gets no confirmation email.
 
 ## Helper (TypeScript / Node 18+)
 

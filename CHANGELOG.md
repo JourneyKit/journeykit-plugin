@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0 (2026-11-16)
+
+Needs a JourneyKit server that has lists. Newsletters are now lists, and a waitlist is a list.
+
+- **Renamed.** MCP tools `newsletters_*` are `lists_*`, `newsletterId`/`newsletterIds`/`newsletterConsent` are `listId`/`listIds`/`listConsent`, the SDK and `POST /api/subscribe` take `list` (and `lists` on a claim) instead of `newsletter` (`newsletters`), and the events are `list_subscribed` and `list_unsubscribed`.
+- **Confirmation.** Signups on a form or with a public key get a confirmation email from an editable workflow made with the list. `requireConfirmation` holds them as `pending` until they click. New event `list_confirmed`, new workflow step `confirm_subscription`, new binding `{ "kind": "confirm_link" }`, and `confirmedOnly` on issues.
+- The `campaigns`, `workflows`, `troubleshooting` and `onboard` skills describe lists, waitlists and confirmation.
+
 ## 0.6.9 (2026-11-07)
 
 - The manifest description opens with what JourneyKit is, an email marketing platform for newsletters, lead magnets, broadcasts and automated workflows, then says what the plugin does.

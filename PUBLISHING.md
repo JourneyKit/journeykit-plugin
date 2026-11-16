@@ -38,7 +38,7 @@ The public directory (shared by ChatGPT and Codex) takes submissions through the
 
 - An OpenAI organization member with **Apps Management** write access, and completed identity verification.
 - **Domain verification** for `journeykit.io`: the portal gives a challenge token to serve as plain text at a `.well-known` path on the MCP server's domain. Add it as a route in the web app.
-- A **reviewer account**: a JourneyKit login without MFA or email codes, in a workspace with sample contacts, events, a segment, a preset, a workflow, a newsletter and a lead magnet (the emitter app can generate traffic). Credentials go in the portal's form, never in this repo.
+- A **reviewer account**: a JourneyKit login without MFA or email codes, in a workspace with sample contacts, events, a segment, a preset, a workflow, a list and a lead magnet (the emitter app can generate traffic). Credentials go in the portal's form, never in this repo.
 - A short **video** of the setup flow end to end.
 - Upload a ZIP of this repository (`git archive -o journeykit-plugin.zip HEAD`). The listing comes from `.codex-plugin/plugin.json` → `interface`; `skills/` and `.mcp.json` are discovered from it. The portal scans the MCP server's tools and annotations.
 
@@ -53,7 +53,7 @@ Positive:
 5. "Onboard this project to JourneyKit" (or `/journeykit:onboard`) → reads the codebase, proposes one plan, then creates contact properties, event definitions, branding, postal address, presets (from `body`) and paused workflows, wires identify/track/page, and verifies with `check_setup`.
 6. "How did the welcome workflow do over the last 30 days?" → `workflows_analytics` with `days: 30`; answers with window, denominators and lift.
 7. "Write a broadcast announcing our new pricing" → `broadcasts_create` as a draft, `broadcasts_audience` for the count; does not call `broadcasts_send` until the user approves that audience.
-8. "Start a newsletter with a public signup page" → `newsletters_create`, `newsletters_set_public`; reports `publicUrl`.
+8. "Start a newsletter or waitlist with a public signup page" → `lists_create`, `lists_set_public`; reports `publicUrl`.
 
 Negative:
 

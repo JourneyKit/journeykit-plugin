@@ -9,7 +9,7 @@ A **workflow** is a trigger (an event, a contact property change, or a hand-over
 
 Everything goes through the JourneyKit MCP server. Each operation is its own tool, and its input schema is the contract; this file only names them.
 
-For broadcasts, newsletters, lead magnets and imports, use the `campaigns` skill.
+For broadcasts, lists, lead magnets and imports, use the `campaigns` skill.
 
 ## Read the workspace first
 
@@ -19,7 +19,7 @@ Ground every proposal in what the workspace has:
 - `contact_properties_list`: property keys, types and options.
 - `segments_list`, `workflows_list`, `presets_list`: reuse before creating.
 
-JourneyKit records some events itself, ready to use as triggers, goals and conditions: `email_opened`, `email_clicked`, `newsletter_subscribed`, `newsletter_unsubscribed`, `lead_magnet_claimed`, `lead_magnet_opened`, and `page_viewed` from the SDK.
+JourneyKit records some events itself, ready to use as triggers, goals and conditions: `email_opened`, `email_clicked`, `list_subscribed` (carries `listId`, `status` and `needsConfirmation`), `list_confirmed`, `list_unsubscribed`, `lead_magnet_claimed`, `lead_magnet_opened`, and `page_viewed` from the SDK.
 
 When a request depends on an event nobody tracks yet, say so and offer to add tracking (the `onboard` skill) before building on it.
 
@@ -38,6 +38,8 @@ Done when: the workflow exists **paused**, matches the approved proposal, and ev
 - Waits are relative: `wait` takes a duration and `wait_until` a time of day. To reach "3 days before the trial ends", wait the trial length minus 3 days from `trial_started`.
 - `wait_event` carries on when the event arrives, and on timeout it continues or exits per `onTimeout`. To email only contacts who didn't act, follow a `wait` with a `check` using `not_performed`.
 - A run that reaches its goal stops, so a goal event ends the nudges on its own.
+- A list's confirmation email is a normal workflow made for that list (trigger `list_subscribed`, a `switch` on `listId`, then `needsConfirmation`). Its email binds the preset parameter `confirm_url` to `{ "kind": "confirm_link" }`, which builds the signed link from the trigger event's `listId`. Edit its copy freely, but keep that binding and keep the workflow active.
+- `confirm_subscription` (`listId`) records a confirmation without the link, for example after your app verifies an address. It does nothing for someone who unsubscribed.
 - A required preset parameter with no value fails the step. Bind each one to a contact field (`{ "kind": "contact", "path": "properties.firstName" }`), or give the parameter a `sample` and set `required: false`.
 
 ## Go live
@@ -54,7 +56,7 @@ These reach real people or can't be undone, so each needs the user's explicit wo
 
 - Overall: `metrics_catalog` (what exists), `metrics_summary`, `metrics_series` (with the previous period, optionally for one segment), `insights_list`.
 - A workflow: `workflows_analytics` (the full report: goal rate, lift, exit reasons, per-step breakdown, email delivery, opens, clicks and links), `workflows_funnel`, `workflows_timeseries`, `workflows_runs`, `workflows_run`, and `workflows_history` across all of them.
-- A person: `contacts_list`, `contacts_get`, `workflows_nudges_for_contact`, `newsletters_for_contact`, `lead_magnets_for_contact`.
+- A person: `contacts_list`, `contacts_get`, `workflows_nudges_for_contact`, `lists_for_contact`, `lead_magnets_for_contact`.
 - Sent email: `email_history`, `email_message`.
 - Engagement: the segment conditions `engagement` (`engaged`, `at_risk`, `inactive`, `new`) and `last_engaged`, with `segments_preview` for the count.
 
