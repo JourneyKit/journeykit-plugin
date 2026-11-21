@@ -50,7 +50,7 @@ Work it all out before touching anything.
 
 **Event types.** From the actions in step 2.4, pick 5–15 that describe progress through the product: sign-up, onboarding steps, the core action, collaboration (invites), billing (trial started, subscription started/cancelled), and drop-off signals. Use the standard names where they fit (`event_definitions_add_templates` lists them in its schema). Built-in events JourneyKit records itself (`list_subscribed`, `email_opened`, `email_clicked` and the like) are already defined in every workspace and can't be changed, so never create them, and events have no category; otherwise `object_verb` in snake_case, past tense (`report_exported`). For each: description, its properties with types, and the file and line where it happens, after success, not on click.
 
-**Email branding.** Logo URL (absolute, publicly reachable: a file under the site's public folder on its production URL), `primaryColor` from the brand colour, background/container/text colours, `fontFamily` (the closest of `system`, `serif` or `mono`), radii from the product's UI, `footerText` with the company name and a line on why the recipient gets the email. If `email_branding_presets` says `customLooks: false`, choose the preset whose look is closest and send it unchanged; logo and footer are always yours to set.
+**Email branding.** Logo URL (absolute, publicly reachable: a file under the site's public folder on its production URL), `primaryColor` from the brand colour, background/container/text colours, `fontFamily` (the closest of `system`, `serif` or `mono`), radii from the product's UI, `footerText` with the company name and a line on why the recipient gets the email. If `email_branding_presets` says `customLooks: false` (free plan), choose the preset whose look is closest, send it unchanged and send `logoUrl: null`: a logo needs a paid plan (setting one answers 403), and the footer is always yours to set. Tell the user their logo shows once they upgrade.
 
 **Sender.** The postal address that goes in every footer; marketing email legally needs one and broadcasts refuse to send without it. Look for it in the site's footer, imprint or terms, and ask if it isn't there. If the workspace has no verified domain, propose the product's domain as the sending domain.
 
@@ -73,7 +73,7 @@ Show the user one compact plan and ask for a single go-ahead:
 - the contact fields (key, type);
 - the event types, each with where it fires;
 - files you'll create or change, and the package you'll install;
-- branding (colours, logo URL, preset if on free plan);
+- branding (colours and logo URL, or the preset and no logo on the free plan);
 - the postal address and sending domain;
 - each workflow in one line (trigger → steps → goal) and its emails' subjects.
 
