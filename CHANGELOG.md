@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The `onboard` skill says emails are built in the workspace's branding at send time, so changing branding later reaches existing presets and nothing needs recreating.
+
 ## 0.7.0 (2026-11-16)
 
 Needs a JourneyKit server that has lists. Newsletters are now lists, and a waitlist is a list.
