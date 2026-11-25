@@ -17,29 +17,27 @@ Diagnose from evidence, outermost layer first: is the agent connected → do req
 | "needs the journeykit:write scope" | The connection was granted read-only. Approve the re-authorization prompt, or reconnect and allow changes. |
 | "You are no longer a member of this workspace" | The signed-in member was removed from it; they need to be re-invited or connect a different workspace. |
 
-## Nothing arrives (`sdk_traffic` missing)
+## Nothing arrives (`key_used` missing)
 
-Work through these in order; each is checkable in the code or the browser.
+JourneyKit has no browser SDK; all events come from the backend. Work through these in order.
 
-1. **Script not loaded.** The client module isn't imported anywhere that runs, the key env var is undefined at build time (wrong prefix, e.g. `REACT_APP_` in a Vite app; not rebuilt after adding it), or the code only runs on the server.
-2. **Wrong host.** Requests go to the product's own origin (`/api/ingest/...` 404s) instead of `https://journeykit.io`. Pass `host` to `init` explicitly.
-3. **CSP.** The console shows "Refused to load the script" or "Refused to connect". Add the JourneyKit host to `script-src` and `connect-src`, including the production CSP.
-4. **Blocked by an extension.** Ad and tracking blockers may block `sdk.js`. Verify in a clean profile; the app keeps working either way because the module fails quiet.
-5. **Invalid key.** A `401 Invalid or missing API key` from `/api/ingest/*`: the key was revoked, mistyped, or belongs to another workspace. Compare its prefix with `keys.public` in `check_setup`; create a new one with `create_public_key` if needed.
+1. **No key.** `check_setup` lists none: the user creates one under Settings → API keys (`urls.apiKeys`) and sets it in the backend's environment.
+2. **The key isn't set where the code runs.** The helper returns silently without it. Check the deployment's environment, not just the local `.env`.
+3. **Old browser code.** The project still loads `@journeykit.io/browser-sdk` or `sdk.js` with a `jk_pub_` key. That SDK and public keys were removed and the calls are refused with `401`. Delete them and send the same events from the backend.
+4. **Wrong URL.** Requests go to the product's own origin (`/api/ingest/...` 404s) instead of `urls.ingest`.
+5. **Invalid key.** A `401 Invalid or missing API key`: the key was revoked, mistyped, or belongs to another workspace. Compare its prefix with `keys` in `check_setup`.
+6. **The code never runs.** The helper isn't called from the handler that does the work, or the serverless function returns before the request leaves: await it or use `waitUntil`.
 
 ## Contacts arrive, events don't (`track` missing)
 
-- `track` runs before `identify`: the SDK drops it with a console warning `track(...) ignored: call identify() first`. Identify earlier, or move the track call after the session is known.
 - Event name rejected (`400 Invalid payload`): names allow letters, digits, `_ . : -`, up to 120 characters.
-- `page()` sends nothing before `identify()`: views wait in the browser, so anonymous visits never appear.
-- `403 Public keys cannot set event timestamps`: a `timestamp` was sent with a public key. Drop it for live events; only a backfill needs one, sent with a secret key the user sets.
+- The `contactId` on track differs from the one on identify (e.g. email on one side, database id on the other), splitting one person into two contacts. Use the same id everywhere.
+- The call sits before the work succeeds, or in a branch that doesn't run: read the handler.
 
 ## Server-side events missing
 
-- The public key isn't set where that deployment reads its config: the helper returns silently. It's a public key: add it to the deployment's config or commit it to the project's public config.
-- A secret key ended up in front-end code or a commit: replace it with the public key, and tell the user to revoke the secret key under Settings → API keys since it was exposed.
+- A key in front-end code or a commit: remove it, move it to the backend's environment, and tell the user to revoke it under Settings → API keys and create a new one, since it was exposed.
 - The serverless function returns before the fetch completes: await it or use `waitUntil`.
-- The `userId` differs from the front end's (e.g. email on one side, database id on the other), splitting one person into two contacts. Use the same id everywhere.
 
 ## A workflow doesn't start or doesn't send
 
@@ -70,9 +68,9 @@ Read it with `workflows_get`, `workflows_runs` and `workflows_run`.
 | `401 Invalid API key` | The key was revoked or mistyped. |
 | `404` | The slug is wrong or belongs to another workspace, the list or lead magnet is archived, or a lead magnet has nothing to deliver yet (`ready: false`). |
 | `429` | Too many tries from one IP. Wait, or test from elsewhere. |
-| `403` or `503` on a hosted form | The bot check failed or isn't configured. SDK calls with a key skip it. |
+| `403` or `503` on a hosted form | The bot check failed or isn't configured. Backend calls with a key skip it. |
 
-A hosted page that 404s is off until `lists_set_public` or `lead_magnets_set_public`; embeds and the SDK work either way. A person who unsubscribed gets a confirmation email instead of being subscribed again.
+A hosted page that 404s is off until `lists_set_public` or `lead_magnets_set_public`; embeds work either way. A person who unsubscribed gets a confirmation email instead of being subscribed again.
 
 ## Opens and clicks look wrong
 

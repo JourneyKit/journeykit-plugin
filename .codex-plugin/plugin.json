@@ -1,7 +1,7 @@
 {
   "name": "journeykit",
   "version": "0.7.0",
-  "description": "JourneyKit is an email marketing platform for newsletters, lead magnets, broadcasts and automated workflows. This plugin lets your coding agent set it up and run it: install the SDK, track events, match your branding, build segments and workflows, and send campaigns.",
+  "description": "JourneyKit is an email marketing platform for newsletters, lead magnets, broadcasts and automated workflows. This plugin lets your coding agent set it up and run it: add tracking to your backend, match your branding, build segments and workflows, and send campaigns.",
   "author": { "name": "JourneyKit", "email": "hello@journeykit.io", "url": "https://journeykit.io" },
   "homepage": "https://docs.journeykit.io/docs/mcp",
   "repository": "https://github.com/JourneyKit/journeykit-plugin",
@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "JourneyKit",
     "shortDescription": "Email marketing for your app",
-    "longDescription": "Newsletters, lead magnets, broadcasts and automated workflows in one platform, set up by your agent. It finds your framework, adds the browser SDK, identifies signed-in users, tracks the events that matter, matches your email branding, and verifies that data reaches your workspace. Then build segments and workflows measured against a holdout, send a broadcast or newsletter issue, launch a lead magnet, and ask how it all did, from the same conversation.",
+    "longDescription": "Newsletters, lead magnets, broadcasts and automated workflows in one platform, set up by your agent. It finds your framework, adds backend calls that identify signed-in users, tracks the events that matter, matches your email branding, and verifies that data reaches your workspace. Then build segments and workflows measured against a holdout, send a broadcast or newsletter issue, launch a lead magnet, and ask how it all did, from the same conversation.",
     "developerName": "JourneyKit",
     "category": "Developer Tools",
     "capabilities": ["Interactive", "Read", "Write"],

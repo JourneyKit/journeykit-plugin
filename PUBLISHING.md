@@ -2,7 +2,7 @@
 
 This repository is the single source of truth. Every directory below is fed from it; the MCP server is deployed separately with the JourneyKit app at `https://journeykit.io/api/mcp`.
 
-Before any submission: `claude plugin validate . --profile directory --strict` passes, versions are bumped together, and `CHANGELOG.md` has the release. The skills teach the SDK as it is in the app repo, so publish `@journeykit.io/browser-sdk` from `packages/browser-sdk` first whenever its calls changed.
+Before any submission: `claude plugin validate . --profile directory --strict` passes, versions are bumped together, and `CHANGELOG.md` has the release. The skills teach the ingest API as it is in the app repo, so check them against it whenever its calls changed.
 
 ## Claude Code
 
@@ -46,9 +46,9 @@ The public directory (shared by ChatGPT and Codex) takes submissions through the
 
 Positive:
 
-1. "Set up JourneyKit in this project" in a Next.js app with auth → `check_setup`, `create_public_key`; adds the SDK module, identify on session, `page()` on route changes, reset on logout, `account_created` and one core event; verifies with `check_setup` `since`.
+1. "Set up JourneyKit in this project" in a Next.js app with auth → `check_setup`; asks the user to create an API key, adds a server-side helper, identify after sign-in, `account_created` and one core event; verifies with `check_setup` `since`.
 2. "Check whether events are reaching JourneyKit" → `check_setup` with `since`; reports the checklist and which events arrived.
-3. "Track when a user upgrades their plan" in a project with a billing webhook → adds a server-side `plan_upgraded` event sent with the public key from `JOURNEYKIT_KEY`; never creates or asks for a secret key.
+3. "Track when a user upgrades their plan" in a project with a billing webhook → adds a server-side `plan_upgraded` event sent with the API key read from the backend's environment; never writes the key into code or asks for it in chat.
 4. "Build a workflow that emails users who haven't activated 3 days after sign-up" → reads fields and event names (`contact_properties_list`, `events_names`), creates a preset and a workflow with `status: "paused"`, and does not activate it.
 5. "Onboard this project to JourneyKit" (or `/journeykit:onboard`) → reads the codebase, proposes one plan, then creates contact properties, event definitions, branding, postal address, presets (from `body`) and paused workflows, wires identify/track/page, and verifies with `check_setup`.
 6. "How did the welcome workflow do over the last 30 days?" → `workflows_analytics` with `days: 30`; answers with window, denominators and lift.

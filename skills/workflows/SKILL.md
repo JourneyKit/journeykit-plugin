@@ -19,7 +19,7 @@ Ground every proposal in what the workspace has:
 - `contact_properties_list`: property keys, types and options.
 - `segments_list`, `workflows_list`, `presets_list`: reuse before creating.
 
-JourneyKit records some events itself, ready to use as triggers, goals and conditions: `email_opened`, `email_clicked`, `list_subscribed` (carries `listId`, `status` and `needsConfirmation`), `list_confirmed`, `list_unsubscribed`, `lead_magnet_claimed`, `lead_magnet_opened`, and `page_viewed` from the SDK.
+JourneyKit records some events itself, ready to use as triggers, goals and conditions: `email_opened`, `email_clicked`, `list_subscribed` (carries `listId`, `status` and `needsConfirmation`), `list_confirmed`, `list_unsubscribed`, `lead_magnet_claimed`, `lead_magnet_opened`.
 
 When a request depends on an event nobody tracks yet, say so and offer to add tracking (the `onboard` skill) before building on it.
 

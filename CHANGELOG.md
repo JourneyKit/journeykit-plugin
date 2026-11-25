@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+Needs a JourneyKit server without the browser SDK and public keys.
+
+- **Backend only.** The browser SDK (`@journeykit.io/browser-sdk`, `sdk.js`) and `jk_pub_` public keys are gone, and so is the `create_public_key` tool. The `onboard` skill now adds a small backend helper that sends identify and track with a `jk_live_` key the user creates under Settings → API keys and sets in the server environment. No page views, reset or client-side script. `references/frameworks.md` now says where the backend calls go per framework.
+- The `campaigns` skill points signups at the hosted page, the embed or `POST /api/subscribe` from the backend. The `troubleshooting` skill flags old SDK code as a cause of missing data.
+- README, manifests and `PUBLISHING.md` no longer mention the SDK or public keys.
+
 - The `onboard` skill says emails are built in the workspace's branding at send time, so changing branding later reaches existing presets and nothing needs recreating.
 
 ## 0.7.0 (2026-11-16)

@@ -1,19 +1,19 @@
 ---
 name: onboard
-description: Onboard a product to JourneyKit from its codebase. Defines contact fields and event types in the workspace, installs the SDK with identify, track and page calls, matches email branding to the product, sets up the sender, writes email presets and builds paused workflows. Use when the user runs /journeykit:onboard, asks to onboard, set up, install or integrate JourneyKit, or asks to track a new event with JourneyKit.
+description: Onboard a product to JourneyKit from its codebase. Defines contact fields and event types in the workspace, adds identify and track calls to the backend, matches email branding to the product, sets up the sender, writes email presets and builds paused workflows. Use when the user runs /journeykit:onboard, asks to onboard, set up, install or integrate JourneyKit, or asks to track a new event with JourneyKit.
 ---
 
 # Onboard a product to JourneyKit
 
 You turn a codebase into a working JourneyKit workspace in one pass. You read the product, decide what to measure and what to send, make the workspace match (fields, events, branding, sender, presets, workflows), and wire the code. The user approves one plan; everything else is your job.
 
-**Smaller requests.** When JourneyKit is already installed and the user only wants tracking added ("track when a user upgrades"), or only wants the SDK, do just the parts that apply: step 1, the relevant parts of step 2, a plan scoped to the request, the matching parts of steps 5–6, and step 9. Skip branding, sender, presets and workflows unless asked.
+**Smaller requests.** When JourneyKit is already installed and the user only wants tracking added ("track when a user upgrades"), or only wants the backend calls, do just the parts that apply: step 1, the relevant parts of step 2, a plan scoped to the request, the matching parts of steps 5–6, and step 9. Skip branding, sender, presets and workflows unless asked.
 
 Everything in the workspace goes through the JourneyKit MCP server, where each operation is its own tool. Check the input schema of a tool you are calling; it is the contract, and this file only names tools.
 
 ## Ground rules
 
-- **One key, created by you.** Call `create_public_key` once. A public key (`jk_pub_…`) can only identify, track and sign people up, so it is safe in front-end code, in commits and in server env. The browser SDK and backend calls both use it. Never create, ask for or handle a secret key (`jk_live_…`); it is only needed to backfill history with timestamps, and the user creates that themselves.
+- **Backend only, one secret key, created by the user.** JourneyKit has no browser SDK and no public keys: identify and track are sent from the backend with a workspace API key (`jk_live_…`), which can do everything and so must never reach front-end code, a commit or a log. You can't create keys; the user does under Settings → API keys (`urls.apiKeys` from `check_setup`). Read the key from the backend's environment or secret store in code, put a placeholder line in `.env.example`, and tell the user to set the real value in each deployment. Don't ask them to paste it into the chat, and never write it to a file that is committed.
 - **Reuse before creating.** The workspace may not be empty. Match existing fields, event definitions, presets and workflows by key/name and update or skip them; never create duplicates. The same goes for the codebase: if it already has JourneyKit code, a key or env vars, show the user what's there and ask before replacing anything.
 - **Nothing reaches contacts without the user.** A workflow with steps goes live on creation unless told otherwise, so every `workflows_create` passes `status: "paused"`. Activating a workflow (`workflows_set_status`), sending a test email and deleting anything happen only when the user says so.
 - **The project's conventions win.** Package manager, env-var naming, file layout, code style. If it already wraps another analytics tool (Segment, PostHog, Amplitude, a `track()` helper), add JourneyKit inside that wrapper instead of sprinkling new calls.
@@ -22,10 +22,10 @@ Everything in the workspace goes through the JourneyKit MCP server, where each o
 ## Step 1: Connect and read the workspace
 
 1. `check_setup`. If the tools are missing or unauthorized, ask the user to connect (Claude Code: `/mcp` → `journeykit` → authenticate; Codex: `codex mcp login journeykit`; Cursor: Settings → MCP → JourneyKit → Connect) and retry. Tell the user which workspace you're connected to; if it's the wrong one, they reconnect and pick another on the consent screen.
-   If they can't connect, continue in *manual mode* with just the code: the user creates a public key under Settings → API keys and pastes it to you (a public key is fine to paste), the host is `https://journeykit.io`, workspace changes (fields, events, branding, sender, presets, workflows) are listed in the report for the user to make, and verification becomes "check Contacts in the dashboard".
+   If they can't connect, continue in *manual mode* with just the code: the user creates a key under Settings → API keys and sets it in the backend's environment themselves, the host is `https://journeykit.io`, workspace changes (fields, events, branding, sender, presets, workflows) are listed in the report for the user to make, and verification becomes "check Contacts in the dashboard".
 2. Read what exists: `contact_properties_list`, `event_definitions_list`, `email_branding_get`, `email_branding_presets`, `presets_list`, `workflows_list`, `email_domain_get`, `email_postal_address_get`.
 
-Done when: you know the workspace, its key prefixes, its sender, and what's already defined.
+Done when: you know the workspace, whether it has an API key (prefixes only), its sender, and what's already defined.
 
 ## Step 2: Understand the product
 
@@ -33,12 +33,12 @@ Read, don't guess. In roughly this order:
 
 1. **What it is.** README, landing/marketing pages, `package.json`/`pyproject`/`Gemfile` metadata, page titles and meta descriptions. Write yourself a two-sentence summary: who uses it and the outcome they come for.
 2. **The contact model.** The users table/model/schema (Prisma, Drizzle, ActiveRecord, Django models, SQL migrations…) and the tables hanging off it (accounts, workspaces, subscriptions). Note each column, its type and enum values.
-3. **Auth.** Where sign-up completes, where the signed-in user becomes known on the client, where logout happens. The contact id is the product's stable user id, never the email.
+3. **Auth.** Where sign-up completes, where the signed-in user becomes known on the client, where logout happens. The contact id is the product's stable user id, never the email. Everything is sent from the backend, so note where on the server each of these happens.
 4. **What users do.** Routes, API handlers, server actions, mutations, form submits, background jobs and billing webhooks. List the actions that create or change something meaningful, with file and line.
 5. **Brand.** The website URL (README, `homepage`, `metadataBase`, `og:url`, env such as `APP_URL`), the logo (`public/`, `assets/`, favicon/apple-touch-icon, an `<svg>` logo component), theme colours (Tailwind theme, CSS variables like `--primary`, design tokens), fonts and corner radius. If you can fetch the live site, use it too.
-6. **Audience touchpoints.** Marketing pages to call `page()` on, and any newsletter, waitlist or "get the guide" forms (a waitlist is a list; see the `campaigns` skill) that could use `subscribe()` or `claim()`.
-7. **Stack.** Front-end framework and entry point, back-end language, package manager, env-var convention for public client config (`NEXT_PUBLIC_`, `VITE_`, `PUBLIC_`, …) and where examples live (`.env.example`), type-check/build/lint scripts, Content-Security-Policy (headers config, middleware, `<meta http-equiv>`).
-8. **Existing JourneyKit code and analytics.** Search for `journeykit`, `JourneyKit`, `jk_pub_`, `jk_live_`, `sdk.js`, and for an existing analytics wrapper.
+6. **Audience touchpoints.** Any newsletter, waitlist or "get the guide" forms (a waitlist is a list; see the `campaigns` skill) that could move to JourneyKit's hosted page or embed, or post to `POST /api/subscribe` from the backend.
+7. **Stack.** Front-end framework and entry point, back-end language, package manager, how the backend reads secrets (env vars, a secret manager) and where examples live (`.env.example`), type-check/build/lint scripts.
+8. **Existing JourneyKit code and analytics.** A project set up earlier may still call the removed browser SDK (`@journeykit.io/browser-sdk`, `sdk.js`) with a `jk_pub_` key. Those calls no longer work: show the user, and move the events to the backend. Search for `journeykit`, `JourneyKit`, `jk_pub_`, `jk_live_`, `browser-sdk`, `sdk.js`, and for an existing analytics wrapper.
 
 Done when: you can name the product's core action, the activation moment, how users pay (if they do), and the files where each happens.
 
@@ -72,7 +72,7 @@ Show the user one compact plan and ask for a single go-ahead:
 
 - the contact fields (key, type);
 - the event types, each with where it fires;
-- files you'll create or change, and the package you'll install;
+- files you'll create or change, and the key the user needs to create and set;
 - branding (colours and logo URL, or the preset and no logo on the free plan);
 - the postal address and sending domain;
 - each workflow in one line (trigger → steps → goal) and its emails' subjects.
@@ -90,16 +90,13 @@ Done when: every field and event in the plan exists in the workspace with the ag
 
 ## Step 6: Instrument the code
 
-1. **Key.** Reuse the project's existing public key if `check_setup` lists its prefix; otherwise `create_public_key` with `<project name>`. Write it where the project keeps public config (e.g. `VITE_JOURNEYKIT_KEY`, `NEXT_PUBLIC_JOURNEYKIT_KEY`), plus a placeholder line in `.env.example`, and make sure it reaches production builds (committed public config, or name it in the report as something to set in the deployment).
-2. **JavaScript or TypeScript front end:** install the npm package `@journeykit.io/browser-sdk` with the project's package manager and create one client with `createClient({ key, host })` (`host` = `urls.host`); it has `identify`, `track`, `page`, `reset`, `subscribe` and `claim`. Follow [references/frameworks.md](references/frameworks.md) for the client module and where identify/reset go. A front end with no JS build (plain HTML, server templates) can instead load the script from `urls.sdk`, which exposes the same calls on `window.JourneyKit` after `init({ key, host })`.
-3. **Anything else** (Python, Ruby, PHP, Go, Java, Elixir, …, or events only the backend sees): call the ingest REST API from the backend: `POST /api/ingest/identify` and `POST /api/ingest/track` with `Authorization: Bearer <public key>`, through one small helper in the project's language. Contract and helper: [references/server-events.md](references/server-events.md). For a server-rendered app with no JS build, identify on sign-up, login and profile change from the backend.
-4. **Identify** with the fields from step 5 wherever the user's data is known or changes: after sign-up and login, and after updates to plan, profile or the fields you defined. Identify runs before any track: track calls without an identified user are dropped.
+1. **Key.** If `check_setup` lists no key, give the user the link (`urls.apiKeys`) and ask them to create one and set it in the backend's environment, then carry on with the code. Read it in a single server-side module, from the variable the project's convention suggests, never from anything a browser can see (`NEXT_PUBLIC_`, `VITE_`, `PUBLIC_` variables are all wrong). Add a placeholder line to `.env.example`.
+2. **A small backend helper** in the project's language: `POST /api/ingest/identify` and `POST /api/ingest/track` with `Authorization: Bearer <key>`. Contract and helper: [references/server-events.md](references/server-events.md); framework placement is in [references/frameworks.md](references/frameworks.md). If the product wraps another analytics tool, add JourneyKit inside that wrapper.
+3. **Client-side moments** (a sign-up form submit, a button click) reach the backend through the project's own API route or server action, which then sends the event. There is nothing to load in the browser.
+4. **Identify** with the fields from step 5 wherever the backend learns who the user is or their data changes: after sign-up and login, and after updates to plan, profile or the fields you defined. Identify before the first track for a contact.
 5. **Track** each event at the line where it succeeds, with its defined properties. Billing events go in the payment-provider webhook handler.
-6. **Page views.** Call `page()` on each page load or route change, marketing pages included. Before `identify()` it only queues in the browser, so anonymous visitors create no contacts and don't count against the plan.
-7. **Signups.** Existing newsletter or waitlist forms, if the user approved moving them, call `subscribe()` or `claim()` (see the `campaigns` skill).
-8. **Reset** on logout (browser SDK).
-9. **CSP:** if the project sets a Content-Security-Policy, add the JourneyKit host to `script-src` and `connect-src`.
-10. Run the project's type-check / lint / build and fix what you broke. Sending must never break the request around it: errors are caught and logged.
+6. **Signups.** Existing newsletter or waitlist forms, if the user approved moving them, use the hosted page or embed, or the backend posts to `POST /api/subscribe` (see the `campaigns` skill).
+7. Run the project's type-check / lint / build and fix what you broke. Sending must never break the request around it: errors are caught and logged.
 
 Done when: every event in the plan has exactly one call site, identify covers every field you defined, and the project builds.
 
@@ -129,9 +126,9 @@ Done when: every workflow is either active because the user said so by name or "
 2. `check_setup` with `since` (and `contactId` if known): expect `recent.events > 0`, your event names in `recent.eventNames`, and the `identify` and `track` checks `ok`. If not, use the `troubleshooting` skill, fix and repeat.
 3. Report, briefly:
    - fields, events, branding and sender now defined in the workspace;
-   - code changes, file by file, and the package installed;
+   - code changes, file by file;
    - the workflows (one line each) with their emails, which are active and which are paused, and the link to review them: `urls.host` + `/workflows`;
-   - what's left for the user: deploy, set the public key in production if it isn't committed, CSP in production, DNS for the sending domain, turn on any workflows still paused;
+   - what's left for the user: deploy, create the API key if there is none and set it in every deployment's backend environment, DNS for the sending domain, turn on any workflows still paused;
    - what they could do next with the `campaigns` skill: a first broadcast, a newsletter, a lead magnet.
 
-No key beyond a public key's prefix in the report.
+No key value, and no prefix beyond what `check_setup` shows, in the report.

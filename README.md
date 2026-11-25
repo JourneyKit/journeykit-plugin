@@ -4,7 +4,7 @@
 
 Set up [JourneyKit](https://journeykit.io) by asking your coding agent. Install the plugin once, open your project, and run `/journeykit:onboard` (or say "Onboard this project to JourneyKit.").
 
-The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your contact fields and event types in JourneyKit, adds the SDK and the tracking calls, matches your email branding to your product, sets up your sender, writes email presets and builds workflows that react to your events. Then it checks that data really arrives and tells you what it changed. Workflows stay paused until you switch them on.
+The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your contact fields and event types in JourneyKit, adds the tracking calls to your backend, matches your email branding to your product, sets up your sender, writes email presets and builds workflows that react to your events. Then it checks that data really arrives and tells you what it changed. Workflows stay paused until you switch them on.
 
 After that, the same agent runs your email: broadcasts, newsletters and waitlists, lead magnets, list imports and reports.
 
@@ -63,7 +63,7 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 
 ## Safety
 
-- The agent only ever creates **public** keys (`jk_pub_…`), which can only identify contacts, track events and sign people up. They're safe in front-end code, commits and server env, and your browser and backend both send with them. **Secret** keys (`jk_live_…`) are only needed to backfill history, and are created by you under **Settings → API keys**.
+- JourneyKit has no browser SDK and no public keys. Your backend sends contacts and events with a workspace API key (`jk_live_…`), which can do everything, so it stays in your server environment, never in front-end code or a commit. You create it yourself under **Settings → API keys**; the agent can't create keys and never needs you to paste one into the chat.
 - Existing configuration is never overwritten without asking.
 - Workflows are created paused. Turning one on, sending a broadcast or issue, and deleting or archiving anything happen only when you say so.
 
@@ -71,10 +71,10 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 
 The plugin is skills and one MCP server. It has no hooks, scripts or local server, and it collects no telemetry of its own.
 
-- **Connection:** the plugin's one server is `https://journeykit.io/api/mcp`. You sign in with OAuth and pick one workspace, and the agent gets read and write access to that workspace only. During `onboard` the agent may also open your own live site to read your branding, and it installs the SDK from npm.
+- **Connection:** the plugin's one server is `https://journeykit.io/api/mcp`. You sign in with OAuth and pick one workspace, and the agent gets read and write access to that workspace only. During `onboard` the agent may also open your own live site to read your branding.
 - **What's sent to JourneyKit:** what the work needs: event and field names taken from your code, branding such as colors and your logo URL, email copy, and whatever you ask it to create or import, including contact lists. Your source code itself isn't uploaded.
 - **What's read back:** workspace data you ask about, such as contacts, reports and setup status. Contact records are personal data and enter the conversation with your agent when it reads them.
-- **Changes to your project:** `onboard` installs the `@journeykit.io/browser-sdk` npm package and adds tracking calls, which then send your contacts and events to JourneyKit from your own app.
+- **Changes to your project:** `onboard` adds a small backend helper and tracking calls, which then send your contacts and events to JourneyKit from your own server. No client-side script is added.
 
 See the [privacy policy](https://journeykit.io/privacy) and [terms](https://journeykit.io/terms). Disconnect any time under **Settings → Connected apps**.
 
@@ -94,7 +94,7 @@ plugin.json         Agent Plugins manifest
 .agents/plugins/    Codex marketplace
 ```
 
-Skills tell the agent *how* to do the work; the MCP server at `https://journeykit.io/api/mcp` gives it the *tools*: `check_setup` and `create_public_key` for installation, and one tool for each operation of the [JourneyKit API](https://docs.journeykit.io/docs/reference), such as `contacts_list` and `workflows_create`. See the [MCP docs](https://docs.journeykit.io/docs/mcp).
+Skills tell the agent *how* to do the work; the MCP server at `https://journeykit.io/api/mcp` gives it the *tools*: `check_setup` for installation, and one tool for each operation of the [JourneyKit API](https://docs.journeykit.io/docs/reference), such as `contacts_list` and `workflows_create`. See the [MCP docs](https://docs.journeykit.io/docs/mcp).
 
 ## Development
 

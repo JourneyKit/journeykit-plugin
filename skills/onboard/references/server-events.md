@@ -1,38 +1,38 @@
 # Server-side events
 
-Send from the backend what the browser can't see: payments, renewals, cancellations, scheduled jobs, webhooks from billing providers, and in products without a JavaScript front end, identify and track altogether. These requests use the workspace's **public key** (`jk_pub_…`), the same one the browser uses, kept wherever the backend keeps its config. Only backfilling history (setting `timestamp`) needs a secret key, which the user creates and sets themselves.
+Everything JourneyKit learns about contacts comes from the backend: sign-ups, logins, profile changes, payments, renewals, cancellations, scheduled jobs and webhooks from billing providers. There is no browser SDK and no public key. Requests carry a workspace API key (`jk_live_…`), which can do everything, so it lives in the backend's environment or secret store only. The user creates it under Settings → API keys (`urls.apiKeys` from `check_setup`).
 
 ## HTTP contract
 
-Base URL: `urls.ingest` from `check_setup`. Header `Authorization: Bearer <public key>`, `Content-Type: application/json`.
+Base URL: `urls.ingest` from `check_setup`. Header `Authorization: Bearer <key>`, `Content-Type: application/json`.
 
 | Request | Body | Response |
 | --- | --- | --- |
 | `POST /track` | `{ "contactId", "event", "properties"?, "timestamp"? }` or `{ "events": [ … up to 500 ] }` | `202 { "accepted": n }` |
 | `POST /identify` | `{ "contactId", "email"?, "name"?, "properties"? }` | `200` |
 
-- `contactId` is the same id the front end passes to `identify`.
+- `contactId` is the product's stable user id, the same everywhere, never the email.
 - `event`: letters, digits, `_ . : -`, up to 120 characters.
-- `timestamp` (ISO 8601) backfills history; only secret keys may set it (a public key with `timestamp` answers 403). Leave it out for live events.
-- Contacts are created on first sight, so a server event for someone the browser never identified still works.
+- `timestamp` (ISO 8601) backfills history. Leave it out for live events.
+- Contacts are created on first sight, so a track for someone you haven't identified yet still works, but identify first to set their email and fields.
 - Properties merge key by key; keys you leave out stay as they are.
-- Signups from a server form go to `POST /api/subscribe` on `urls.host` with the same header: `{ "list": slug, "email", "name"? }`, or `{ "leadMagnet": slug, "email", "name"?, "lists"? }`. It answers `200` for every outcome, so a form never reveals whether an address is known, and a signup sends the list's confirmation email. A server calling it with a `jk_live_` key is treated as having verified the address: the person joins at once and gets no confirmation email.
+- Signups from a server form go to `POST /api/subscribe` on `urls.host` with the same header: `{ "list": slug, "email", "name"? }`, or `{ "leadMagnet": slug, "email", "name"?, "lists"? }`. It answers `200` for every outcome, so a form never reveals whether an address is known, and a signup sends the list's confirmation email. A call with the key is treated as the product's own server vouching for the address: the person joins at once and gets no confirmation email.
 
 ## Helper (TypeScript / Node 18+)
 
-Replace `<urls.ingest>` with the value from `check_setup`, and `<public key>` with how the project's backend gets the key: its config module or settings object, or the key itself, which is safe to commit.
+Replace `<urls.ingest>` with the value from `check_setup`, and `<key>` with how the project's backend reads secrets: its config module or `env` object. Never write the key itself into the code.
 
 ```ts
 // e.g. src/server/journeykit.ts
 const ingestUrl = "<urls.ingest>";
-const publicKey: string | undefined = <public key>;
+const apiKey: string | undefined = <key>;
 
 async function send(path: "track" | "identify", body: unknown) {
-  if (!publicKey) return;
+  if (!apiKey) return;
   try {
     const res = await fetch(ingestUrl + "/" + path, {
       method: "POST",
-      headers: { Authorization: "Bearer " + publicKey, "Content-Type": "application/json" },
+      headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(5000),
     });
