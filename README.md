@@ -55,6 +55,7 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 | "Track when a user upgrades their plan." | Adds the event where it happens, server-side if that's where it's visible. |
 | "Events aren't showing up in JourneyKit." | Diagnoses the install layer by layer and fixes it. |
 | "Build a workflow that nudges users who haven't activated after 3 days." | Builds the segment, email and workflow, paused, for you to switch on. |
+| "Make a trial ending email from your templates." | Starts from a ready-made template or blocks in your branding, rewrites it for your product and saves it as a preset you can edit. |
 | "Announce the new pricing to everyone on a paid plan." | Writes the broadcast, shows you the audience size, and sends only on your word. |
 | "Start a monthly newsletter with a signup page." | Creates the list, turns on its public page and adds the form to your site. |
 | "Give away our launch checklist for an email address." | Sets up the lead magnet, its form and the delivery email. |
@@ -84,6 +85,7 @@ See the [privacy policy](https://journeykit.io/privacy) and [terms](https://jour
 skills/
   onboard/          set up from the codebase: fields, events, tracking, branding, sender, emails, workflows
   workflows/        build segments, presets and workflows; answer questions from your reports
+  emails/           write emails from ready-made templates and blocks
   campaigns/        broadcasts, lists, lead magnets and contact imports
   troubleshooting/  diagnose missing data, connection, workflow, sending and signup problems
 .mcp.json           MCP server for Claude Code and Codex

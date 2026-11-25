@@ -11,7 +11,7 @@ Everything goes through the JourneyKit MCP server. Each operation is its own too
 - A **list** is people who agreed to hear from the user: a newsletter, a waitlist, product updates. They're all the same thing; `preset` (`newsletter`, `waitlist`, `blank`) only prefills the wording of the emails made for it. Being a contact doesn't make someone a member. An **issue** is a broadcast with a `listId`.
 - A **lead magnet** is something given away for an email address.
 
-Automated sequences belong to the `workflows` skill.
+Automated sequences belong to the `workflows` skill, and writing the email itself to the `emails` skill.
 
 ## Read the workspace first
 
@@ -21,10 +21,10 @@ Sending needs a postal address in the footer, so collect a missing one from the 
 
 ## Broadcasts
 
-1. Propose the audience, subject, preview text and copy.
-2. `broadcasts_create` saves a draft. Write the copy as `body` (simple HTML with `{{key}}` placeholders, `<a … data-button>` for a button); the server applies the branding.
+1. Propose the audience, subject, preview text, copy, and the template or blocks to build it from (`email_templates_list`, `email_blocks_list`).
+2. `broadcasts_create` saves a draft. Write the email as `body` with the `emails` skill: a template or blocks with the copy rewritten and `{{key}}` placeholders; the server applies the branding.
 3. Give each `{{key}}` a source in `bindings` and a value in `fallbacks`, such as `there` for `Hi {{firstName}}`. A contact with neither isn't sent the email.
-4. `broadcasts_audience` for the count. Offer `presets_send_test` so the user can read it first; it emails the signed-in member.
+4. `broadcasts_audience` for the count. Offer `presets_send_test` with the `body` so the user can read it first; it emails the signed-in member.
 5. `broadcasts_send`, now or with `at`, only after the user approves that audience count in this conversation. `broadcasts_cancel` stops one that is scheduled or sending.
 
 Report with `broadcasts_get`, `broadcasts_messages` and `broadcasts_links`.
@@ -51,9 +51,9 @@ The `type` is fixed at creation:
 | Type | Needs before it takes claims |
 | --- | --- |
 | `link` | `linkUrl` at creation |
-| `page` | `lead_magnets_set_page` with HTML |
+| `page` | `lead_magnets_set_page` with a `body`, written like an email (`emails` skill) |
 | `file` | An upload by the user on the lead magnet's Overview tab, which is dashboard-only |
-| `course` | Nothing. Creating it also creates a **live** workflow with three lesson emails, one a day, to edit with `workflows_update` |
+| `course` | Nothing. Creating it also creates a **live** workflow with three lesson emails, one a day, to edit with `workflows_update`; write the lessons with `presets_update` (`emails` skill) |
 
 Attach `listIds` (a claim that joins a list follows that list's confirmation rule) with `listConsent`: `included` says it plainly on the form, `checkbox` is an unticked box and the choice for EU audiences. Collect claims through `lead_magnets_set_public` (`publicUrl`), `embedUrl`, or the backend posting `{ "leadMagnet": slug, "email", "name"?, "lists"? }` to `POST /api/subscribe` with an API key, passing `lists: true` only when the box was ticked. Preview the delivery email with `lead_magnets_delivery_preview`, and report with `lead_magnets_get` and `lead_magnets_claims`.
 

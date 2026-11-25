@@ -53,7 +53,8 @@ Positive:
 5. "Onboard this project to JourneyKit" (or `/journeykit:onboard`) → reads the codebase, proposes one plan, then creates contact properties, event definitions, branding, postal address, presets (from `body`) and paused workflows, wires identify/track/page, and verifies with `check_setup`.
 6. "How did the welcome workflow do over the last 30 days?" → `workflows_analytics` with `days: 30`; answers with window, denominators and lift.
 7. "Write a broadcast announcing our new pricing" → `broadcasts_create` as a draft, `broadcasts_audience` for the count; does not call `broadcasts_send` until the user approves that audience.
-8. "Start a newsletter or waitlist with a public signup page" → `lists_create`, `lists_set_public`; reports `publicUrl`.
+8. "Make a win-back email from a template" → `email_templates_list`, `email_templates_get`, then `presets_create` with a rewritten `body`; no sample copy left.
+9. "Start a newsletter or waitlist with a public signup page" → `lists_create`, `lists_set_public`; reports `publicUrl`.
 
 Negative:
 

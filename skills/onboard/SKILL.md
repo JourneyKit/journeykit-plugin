@@ -75,7 +75,7 @@ Show the user one compact plan and ask for a single go-ahead:
 - files you'll create or change, and the key the user needs to create and set;
 - branding (colours and logo URL, or the preset and no logo on the free plan);
 - the postal address and sending domain;
-- each workflow in one line (trigger → steps → goal) and its emails' subjects.
+- each workflow in one line (trigger → steps → goal) and its emails' subjects, each with the template it starts from.
 
 Ask only what you can't decide, typically which action is the core action, if the code doesn't make it obvious. Propose a default for everything so "yes" is enough. Apply their edits, then do steps 5–7 and 9 without further questions; step 8 asks once more, because it reaches real contacts.
 
@@ -102,7 +102,7 @@ Done when: every event in the plan has exactly one call site, identify covers ev
 
 ## Step 7: Presets and workflows
 
-1. **Presets:** `presets_create` per email with `name`, `subject`, `previewText`, `parameters` and `body`: simple HTML (`<h1>`, `<p>`, `<ul>`, `<a href="…" data-button>Call to action</a>`) with `{{key}}` placeholders. Pass `body` instead of `html`/`text`/`document`: the server applies the workspace branding and makes it editable in the dashboard. Every email is built in the workspace's branding as it is when it is sent, so a later branding change reaches existing presets; there is no need to recreate them. Reuse an existing preset with the same purpose instead (`presets_update` if its copy should change).
+1. **Presets:** `presets_create` per email with `name`, `subject`, `previewText`, `parameters` and `body`, written with the `emails` skill: the template that matches the email's job (`email_templates_list`, such as `welcome`, `setup-checklist`, `trial-ending`, `win-back`) or blocks (`email_blocks_list`), with all its sample copy and links replaced by the product's. Pass `body` instead of `html`/`text`/`document`: the server applies the workspace branding and makes it editable in the dashboard. Every email is built in the workspace's branding as it is when it is sent, so a later branding change reaches existing presets; there is no need to recreate them. Reuse an existing preset with the same purpose instead (`presets_update` if its copy should change).
 2. **Workflows:** `workflows_create` per workflow with `status: "paused"`: trigger, steps, goal, 10% holdout. Email steps use `presetId` to reference the presets from 1 and bind every required parameter (`firstName` → `{ "kind": "contact", "path": "properties.firstName" }`). Every event and property a workflow references must exist from step 5.
 3. `workflows_get` each one and check that it matches the plan and its status is `paused`.
 
