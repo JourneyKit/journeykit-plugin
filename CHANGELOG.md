@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.8.0 (2026-11-25)
 
 Needs a JourneyKit server without the browser SDK and public keys.
 
