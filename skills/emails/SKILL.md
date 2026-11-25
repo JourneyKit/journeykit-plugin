@@ -1,13 +1,37 @@
 ---
 name: emails
-description: Write and design JourneyKit emails from ready-made templates and blocks. Use when creating or changing the email of a preset, broadcast, newsletter issue, course lesson or lead magnet page, or when asked what email templates or blocks there are.
+description: Write and design JourneyKit emails from ready-made templates and blocks. Use whenever the user asks to write, design, create, change or reuse an email, in whatever words (email, template, preset, newsletter, campaign, blast, drip), and it has to be worked out what that is in JourneyKit, or when asked what email templates or blocks there are.
 ---
 
 # Writing an email
 
-JourneyKit has a library of designed templates (whole emails) and blocks (parts of one). Presets, broadcasts, list issues and lead magnet pages all take the same HTML `body`, and anything made from the library opens in the dashboard editor block by block. A paragraph-only email is right for a personal note; for everything else, start from the library.
+JourneyKit has a library of designed templates (whole emails) and blocks (parts of one). Presets, broadcasts, list issues and lead magnet pages all take the same HTML `body`, and anything made from the library opens in the dashboard editor block by block. A paragraph-only `body` is right for a personal note; for everything else, start from the library.
 
 Everything goes through the JourneyKit MCP server. Each operation is its own tool, and its input schema is the contract; this file only names them.
+
+## Work out what "email" means
+
+JourneyKit has no record called an email. What to create depends on **who gets it and when**:
+
+| The user wants | It is | Make it with |
+| --- | --- | --- |
+| Everyone, or a group, to get it once ("announce", "send an email to", "blast", "campaign") | A **broadcast** | `broadcasts_create` |
+| The people who signed up to a list to get it ("this week's newsletter", "tell the waitlist") | An **issue**: a broadcast with a `listId` | `broadcasts_create` |
+| Each person to get it when they do something, or some time after ("welcome email", "when their trial ends", "drip", "follow-up") | A **preset** sent by a **workflow** | `presets_create`, then the `workflows` skill |
+| An email to keep and reuse, with no sending yet ("make me a template", "save this design") | A **preset** | `presets_create` |
+| A design to start from ("what templates do you have") | A library **template**, read-only | `email_templates_list` |
+| To change the confirmation or welcome email of a list, or a course lesson | The **preset** in that list's or course's workflow | `workflows_get` for its `presetId`, then `presets_update` |
+| To change the email that delivers a lead magnet | Two plain-text fields, no `body` | `lead_magnets_update` (`deliverySubject`, `deliveryMessage`) |
+| Content people read after claiming a lead magnet | A `page` **lead magnet** | `lead_magnets_set_page` |
+| To see an email that already went out | A sent message | `email_history`, `email_message` |
+
+- **"Template" is ambiguous.** Users mostly mean a saved email of their own: a preset. Check `presets_list` before the library when they say "our" or "my" template, or name one.
+- **"Newsletter"** is the list, or one issue of it. "Start a newsletter" creates a list (`campaigns` skill); "write the newsletter" creates an issue, so check `lists_list`.
+- **A preset sends nothing by itself.** When the user expects people to receive it, say what will send it and offer to set that up. A broadcast doesn't use presets: to send one as a broadcast, copy the `body` from `presets_get`.
+- **Changing something existing** comes first: look in `presets_list`, `broadcasts_list` (with the `listId` for issues) and the workflows for an email the request could mean.
+- If who gets it and when are still unclear, ask that one question in the user's words ("Is this going out once, or to each person when something happens?"), not "preset or broadcast?". With no one to ask, make a preset: it reaches nobody.
+
+Say which one you chose when you propose the email.
 
 ## Pick a starting point
 

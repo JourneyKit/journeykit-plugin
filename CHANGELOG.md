@@ -4,7 +4,7 @@
 
 Needs a JourneyKit server with `email_templates_*` and `email_blocks_list`.
 
-- **Templates and blocks.** New MCP tools `email_templates_list`, `email_templates_get` and `email_blocks_list` give the dashboard's email templates and the editor's blocks as HTML in the workspace's branding. New `emails` skill on using them for presets, broadcasts, list issues and lead magnet pages.
+- **Templates and blocks.** New MCP tools `email_templates_list`, `email_templates_get` and `email_blocks_list` give the dashboard's email templates and the editor's blocks as HTML in the workspace's branding. New `emails` skill on working out what the user means by an email (broadcast, issue, preset, workflow email, library template) and building it from them.
 - `presets_create` and `broadcasts_create` (and their updates) take a `templateId`; `lead_magnets_set_page` and `presets_send_test` take a `body`; `presets_get`, `broadcasts_get` and `lead_magnets_page` return one, so an existing email can be changed and sent back. `parameters` is optional on presets.
 - The `workflows`, `campaigns` and `onboard` skills start emails from the library instead of plain HTML.
 
