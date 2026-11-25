@@ -5,7 +5,7 @@ description: Write and design JourneyKit emails from ready-made templates and bl
 
 # Writing an email
 
-JourneyKit has a library of designed templates (whole emails) and blocks (parts of one). Presets, broadcasts, list issues and lead magnet pages all take the same HTML `body`, and anything made from the library opens in the dashboard editor block by block. A paragraph-only `body` is right for a personal note; for everything else, start from the library.
+JourneyKit has a library of designed templates (whole emails) and blocks (parts of one). Emails, broadcasts, list issues and lead magnet pages all take the same HTML `body`, and anything made from the library opens in the dashboard editor block by block. A paragraph-only `body` is right for a personal note; for everything else, start from the library.
 
 Everything goes through the JourneyKit MCP server. Each operation is its own tool, and its input schema is the contract; this file only names them.
 
@@ -17,19 +17,19 @@ JourneyKit has no record called an email. What to create depends on **who gets i
 | --- | --- | --- |
 | Everyone, or a group, to get it once ("announce", "send an email to", "blast", "campaign") | A **broadcast** | `broadcasts_create` |
 | The people who signed up to a list to get it ("this week's newsletter", "tell the waitlist") | An **issue**: a broadcast with a `listId` | `broadcasts_create` |
-| Each person to get it when they do something, or some time after ("welcome email", "when their trial ends", "drip", "follow-up") | A **preset** sent by a **workflow** | `presets_create`, then the `workflows` skill |
-| An email to keep and reuse, with no sending yet ("make me a template", "save this design") | A **preset** | `presets_create` |
+| Each person to get it when they do something, or some time after ("welcome email", "when their trial ends", "drip", "follow-up") | An **email** sent by an **automation** | `presets_create`, then the `workflows` skill |
+| An email to keep and reuse, with no sending yet ("make me a template", "save this design") | An **email** | `presets_create` |
 | A design to start from ("what templates do you have") | A library **template**, read-only | `email_templates_list` |
-| To change the confirmation or welcome email of a list, or a course lesson | The **preset** in that list's or course's workflow | `workflows_get` for its `presetId`, then `presets_update` |
+| To change the confirmation or welcome email of a list, or a course lesson | The **email** in that list's or course's automation | `workflows_get` for its `presetId`, then `presets_update` |
 | To change the email that delivers a lead magnet | Two plain-text fields, no `body` | `lead_magnets_update` (`deliverySubject`, `deliveryMessage`) |
 | Content people read after claiming a lead magnet | A `page` **lead magnet** | `lead_magnets_set_page` |
 | To see an email that already went out | A sent message | `email_history`, `email_message` |
 
 - **"Template" is ambiguous.** Users mostly mean a saved email of their own: a preset. Check `presets_list` before the library when they say "our" or "my" template, or name one.
 - **"Newsletter"** is the list, or one issue of it. "Start a newsletter" creates a list (`campaigns` skill); "write the newsletter" creates an issue, so check `lists_list`.
-- **A preset sends nothing by itself.** When the user expects people to receive it, say what will send it and offer to set that up. A broadcast doesn't use presets: to send one as a broadcast, copy the `body` from `presets_get`.
-- **Changing something existing** comes first: look in `presets_list`, `broadcasts_list` (with the `listId` for issues) and the workflows for an email the request could mean.
-- If who gets it and when are still unclear, ask that one question in the user's words ("Is this going out once, or to each person when something happens?"), not "preset or broadcast?". With no one to ask, make a preset: it reaches nobody.
+- **An email sends nothing by itself.** When the user expects people to receive it, say what will send it and offer to set that up. A broadcast doesn't use emails: to send one as a broadcast, copy the `body` from `presets_get`.
+- **Changing something existing** comes first: look in `presets_list`, `broadcasts_list` (with the `listId` for issues) and the automations for an email the request could mean.
+- If who gets it and when are still unclear, ask that one question in the user's words ("Is this going out once, or to each person when something happens?"), not "email or broadcast?". With no one to ask, make an email: it reaches nobody.
 
 Say which one you chose when you propose the email.
 
@@ -58,11 +58,11 @@ Pass the result as `body`:
 
 | For | Tool |
 | --- | --- |
-| A preset (workflow emails, course lessons) | `presets_create`, `presets_update` |
+| An email (automation emails, course lessons) | `presets_create`, `presets_update` |
 | A broadcast or a list issue | `broadcasts_create`, `broadcasts_update` |
 | A `page` lead magnet | `lead_magnets_set_page` |
 
-Each `{{key}}` needs a value when it's sent: a preset's `parameters` (left out, they're read from the copy) bound in the workflow's email step, a broadcast's `bindings` and `fallbacks`. Lead magnet pages take no placeholders.
+Each `{{key}}` needs a value when it's sent: an email's `parameters` (left out, they're read from the copy) bound in the automation's email step, a broadcast's `bindings` and `fallbacks`. Lead magnet pages take no placeholders.
 
 `templateId` on the create tools uses a template untouched, sample copy included. Use it only when the user wants to edit the copy in the dashboard themselves, and say the sample copy is still in it.
 
@@ -75,3 +75,5 @@ Each `{{key}}` needs a value when it's sent: a preset's `parameters` (left out, 
 `presets_send_test` takes the `body` and emails it to the signed-in member with sample values. It sends a real email, so ask first.
 
 Done when: the email is saved, reads as the user's own with no sample copy left, every `{{key}}` has a source, and you've told the user which template or blocks it uses and which images are still stand-ins.
+
+**Variables fill themselves.** A `{{key}}` with no binding takes the contact field of that name (`firstName`, `first_name` and `first name` all mean the first name; `name`, `email`, or any custom property by its key), and in an automation the trigger event's property of that name first. Bind a key only to choose a different source, and add a fallback for contacts who have no value.

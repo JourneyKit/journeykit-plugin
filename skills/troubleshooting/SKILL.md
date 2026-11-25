@@ -1,11 +1,11 @@
 ---
 name: troubleshooting
-description: Diagnose JourneyKit when something isn't working. Use when events or contacts aren't arriving, a workflow doesn't start, an email or broadcast doesn't send, signups fail, opens or clicks look wrong, the MCP connection fails, or setup verification fails.
+description: Diagnose JourneyKit when something isn't working. Use when events or contacts aren't arriving, an automation doesn't start, an email or broadcast doesn't send, signups fail, opens or clicks look wrong, the MCP connection fails, or setup verification fails.
 ---
 
 # Troubleshoot JourneyKit
 
-Diagnose from evidence, outermost layer first: is the agent connected → do requests reach JourneyKit → are they accepted → is the data what the product meant to send → do workflows react → do emails go out. Call `check_setup` first; its `checks` name the first broken layer. Fix one cause at a time and re-verify with `check_setup` and a fresh `since`.
+Diagnose from evidence, outermost layer first: is the agent connected → do requests reach JourneyKit → are they accepted → is the data what the product meant to send → do automations react → do emails go out. Call `check_setup` first; its `checks` name the first broken layer. Fix one cause at a time and re-verify with `check_setup` and a fresh `since`.
 
 ## MCP connection
 
@@ -39,23 +39,23 @@ JourneyKit has no browser SDK; all events come from the backend. Work through th
 - A key in front-end code or a commit: remove it, move it to the backend's environment, and tell the user to revoke it under Settings → API keys and create a new one, since it was exposed.
 - The serverless function returns before the fetch completes: await it or use `waitUntil`.
 
-## A workflow doesn't start or doesn't send
+## An automation doesn't start or doesn't send
 
 Read it with `workflows_get`, `workflows_runs` and `workflows_run`.
 
-- The workflow is `paused`: only `active` workflows enter contacts.
+- The automation is `paused`: only `active` automations enter contacts.
 - The trigger event name doesn't exactly match what's tracked (`check_setup` → `recent.eventNames`).
 - Re-entry is `once` and the contact already went through it.
 - The contact came from an import or a bulk list add: those start no workflows.
 - The first `check` step excluded the contact, so the run is `exited`.
-- An email step `skipped` (no address, or the address is suppressed) or `failed` (a required preset parameter resolved to nothing): `workflows_nudges_for_contact` shows which.
+- An email step `skipped` (no address, or the address is suppressed) or `failed` (a required email parameter resolved to nothing): `workflows_nudges_for_contact` shows which.
 - The contact landed in the holdout: the run is `exited` with no steps, by design.
 
 ## An email or broadcast doesn't go out
 
 - `broadcasts_send` refused: read its message. The usual causes are a missing postal address (`email_postal_address_set`) and a broadcast that isn't a `draft`.
 - Fewer recipients than expected: `broadcasts_audience` counts contacts with an address minus suppressed ones, and on an issue only active members (`confirmedOnly` also drops those who never clicked). A contact with neither a binding value nor a fallback for a `{{key}}` is left out; `broadcasts_messages` shows each recipient's status.
-- One person gets nothing: check `email_suppressions_list` (unsubscribed, bounced or complained). Only the person can undo an opt-out from a list. A member who is `pending` (a signup on a list that requires confirmation) gets nothing until they click the confirmation link: check `lists_subscribers` with `status: "pending"`, that the list's confirmation workflow is active (`lists_get` → `confirmationReady`), and its runs with `workflows_runs`. `email_suppressions_remove` needs the user's word and their certainty that the person agreed.
+- One person gets nothing: check `email_suppressions_list` (unsubscribed, bounced or complained). Only the person can undo an opt-out from a list. A member who is `pending` (a signup on a list that requires confirmation) gets nothing until they click the confirmation link: check `lists_subscribers` with `status: "pending"`, that the list's confirmation automation is active (`lists_get` → `confirmationReady`), and its runs with `workflows_runs`. `email_suppressions_remove` needs the user's word and their certainty that the person agreed.
 - Sent from the wrong address: `email_domain_get` shows the DNS records, their status and the From header in use. `email_domain_verify` after DNS changes.
 - A sent message's content and delivery: `email_history`, `email_message`.
 

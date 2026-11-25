@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Prose now says "emails" for presets and "automations" for workflows, matching the dashboard. Tool names (`presets_*`, `workflows_*`) are unchanged.
+- A `{{key}}` with no binding fills itself from the contact field of that name (and, in an automation, the trigger event's property first). The `emails` skill says so.
+
 ## 0.9.0 (2026-11-25)
 
 Needs a JourneyKit server with `email_templates_*` and `email_blocks_list`.

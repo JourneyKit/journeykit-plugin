@@ -4,7 +4,7 @@
 
 Set up [JourneyKit](https://journeykit.io) by asking your coding agent. Install the plugin once, open your project, and run `/journeykit:onboard` (or say "Onboard this project to JourneyKit.").
 
-The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your contact fields and event types in JourneyKit, adds the tracking calls to your backend, matches your email branding to your product, sets up your sender, writes email presets and builds workflows that react to your events. Then it checks that data really arrives and tells you what it changed. Workflows stay paused until you switch them on.
+The agent connects to your JourneyKit workspace (you sign in once in the browser), reads your codebase, defines your contact fields and event types in JourneyKit, adds the tracking calls to your backend, matches your email branding to your product, sets up your sender, writes emails and builds automations that react to your events. Then it checks that data really arrives and tells you what it changed. Automations stay paused until you switch them on.
 
 After that, the same agent runs your email: broadcasts, newsletters and waitlists, lead magnets, list imports and reports.
 
@@ -51,22 +51,22 @@ The first time the agent uses JourneyKit, a browser window opens: sign in, pick 
 
 | Say | The agent |
 | --- | --- |
-| "Onboard this project to JourneyKit." | The full first-time setup: fields, events, tracking code, branding, sender, presets and paused workflows. |
+| "Onboard this project to JourneyKit." | The full first-time setup: fields, events, tracking code, branding, sender, emails and paused automations. |
 | "Track when a user upgrades their plan." | Adds the event where it happens, server-side if that's where it's visible. |
 | "Events aren't showing up in JourneyKit." | Diagnoses the install layer by layer and fixes it. |
-| "Build a workflow that nudges users who haven't activated after 3 days." | Builds the segment, email and workflow, paused, for you to switch on. |
-| "Make a trial ending email from your templates." | Starts from a ready-made template or blocks in your branding, rewrites it for your product and saves it as a preset you can edit. |
+| "Build an automation that nudges users who haven't activated after 3 days." | Builds the segment, email and automation, paused, for you to switch on. |
+| "Make a trial ending email from your templates." | Starts from a ready-made template or blocks in your branding, rewrites it for your product and saves it as an email you can edit. |
 | "Announce the new pricing to everyone on a paid plan." | Writes the broadcast, shows you the audience size, and sends only on your word. |
 | "Start a monthly newsletter with a signup page." | Creates the list, turns on its public page and adds the form to your site. |
 | "Give away our launch checklist for an email address." | Sets up the lead magnet, its form and the delivery email. |
 | "Import this CSV of subscribers." | Imports the list, keeps opt-outs out, and starts no workflows. |
-| "How did the welcome workflow do last month?" | Answers from your workflow reports and metrics, with lift against the holdout. |
+| "How did the welcome automation do last month?" | Answers from your automation reports and metrics, with lift against the holdout. |
 
 ## Safety
 
 - JourneyKit has no browser SDK and no public keys. Your backend sends contacts and events with a workspace API key (`jk_live_…`), which can do everything, so it stays in your server environment, never in front-end code or a commit. You create it yourself under **Settings → API keys**; the agent can't create keys and never needs you to paste one into the chat.
 - Existing configuration is never overwritten without asking.
-- Workflows are created paused. Turning one on, sending a broadcast or issue, and deleting or archiving anything happen only when you say so.
+- Automations are created paused. Turning one on, sending a broadcast or issue, and deleting or archiving anything happen only when you say so.
 
 ## Data and network access
 
