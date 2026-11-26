@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **Trigger filters and event labels.** Needs a JourneyKit server with trigger `where`. An event trigger takes `where`, the property values an event must have (`{ "listId": "…" }` is "joins this list"), which replaces a first `switch` on the same value; list confirmation, welcome and course automations are made that way. Event definitions take and return a `label` (what the dashboard calls the event) and return `builtIn`. The `workflows`, `campaigns` and `onboard` skills use them.
 - **Emails are blocks.** Needs a JourneyKit server where emails are blocks. Presets, broadcasts, list issues and lead magnet pages take and return `blocks` (typed JSON: `heading`, `text`, `button`, `panel`, `columns`, `steps`, …) instead of an HTML `body`; `email_templates_get` and `email_blocks_list` return `blocks`, and `email_blocks_list` gives a `reference` of every block type in place of `syntax`. The `emails`, `workflows`, `campaigns` and `onboard` skills write blocks.
 - Prose now says "emails" for presets and "automations" for workflows, matching the dashboard. Tool names (`presets_*`, `workflows_*`) are unchanged.
 - A `{{key}}` with no binding fills itself from the contact field of that name (and, in an automation, the trigger event's property first). The `emails` skill says so.

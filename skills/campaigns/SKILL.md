@@ -57,7 +57,7 @@ The `type` is fixed at creation:
 
 Attach `listIds` (a claim that joins a list follows that list's confirmation rule) with `listConsent`: `included` says it plainly on the form, `checkbox` is an unticked box and the choice for EU audiences. Collect claims through `lead_magnets_set_public` (`publicUrl`), `embedUrl`, or the backend posting `{ "leadMagnet": slug, "email", "name"?, "lists"? }` to `POST /api/subscribe` with an API key, passing `lists: true` only when the box was ticked. Preview the delivery email with `lead_magnets_delivery_preview`, and report with `lead_magnets_get` and `lead_magnets_claims`.
 
-`lead_magnets_archive` can't be undone, and it needs the user's word. To follow up, trigger an automation on `lead_magnet_claimed` or `lead_magnet_opened`, switching on `leadMagnetId`.
+`lead_magnets_archive` can't be undone, and it needs the user's word. To follow up, trigger an automation on `lead_magnet_claimed` or `lead_magnet_opened` with `where: { "leadMagnetId": "…" }`.
 
 ## Importing contacts
 

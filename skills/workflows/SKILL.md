@@ -21,6 +21,8 @@ Ground every proposal in what the workspace has:
 
 JourneyKit records some events itself, ready to use as triggers, goals and conditions: `email_opened`, `email_clicked`, `list_subscribed` (carries `listId`, `status` and `needsConfirmation`), `list_confirmed`, `list_unsubscribed`, `lead_magnet_claimed`, `lead_magnet_opened`.
 
+To start only on some events, give the event trigger a `where`: property values the event must have, compared as text. "Someone joins the Newsletter" is `{ "type": "event", "eventName": "list_subscribed", "where": { "listId": "<list id>" } }`, "claims this lead magnet" is `where: { "leadMagnetId": "…" }`, a custom event can filter on its own properties (`where: { "plan": "pro" }`). Prefer this to a first `switch` step on the same value: the dashboard shows it as "Someone joins Newsletter" and no run starts for other lists.
+
 When a request depends on an event nobody tracks yet, say so and offer to add tracking (the `onboard` skill) before building on it.
 
 ## Build
@@ -38,7 +40,7 @@ Done when: the automation exists **paused**, matches the approved proposal, and 
 - Waits are relative: `wait` takes a duration and `wait_until` a time of day. To reach "3 days before the trial ends", wait the trial length minus 3 days from `trial_started`.
 - `wait_event` carries on when the event arrives, and on timeout it continues or exits per `onTimeout`. To email only contacts who didn't act, follow a `wait` with a `check` using `not_performed`.
 - A run that reaches its goal stops, so a goal event ends the nudges on its own.
-- A list's confirmation email is a normal automation made for that list (trigger `list_subscribed`, a `switch` on `listId`, then `needsConfirmation`). Its email binds the email parameter `confirm_url` to `{ "kind": "confirm_link" }`, which builds the signed link from the trigger event's `listId`. Edit its copy freely, but keep that binding and keep the automation active.
+- A list's confirmation email is a normal automation made for that list (trigger `list_subscribed` with `where: { listId, needsConfirmation: "true" }`). Its email binds the email parameter `confirm_url` to `{ "kind": "confirm_link" }`, which builds the signed link from the trigger event's `listId`. Edit its copy freely, but keep that binding and keep the automation active.
 - `confirm_subscription` (`listId`) records a confirmation without the link, for example after your app verifies an address. It does nothing for someone who unsubscribed.
 - A required email parameter with no value fails the step. Bind each one to a contact field (`{ "kind": "contact", "path": "properties.firstName" }`), or give the parameter a `sample` and set `required: false`.
 
