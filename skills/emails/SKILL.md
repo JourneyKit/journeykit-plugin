@@ -56,7 +56,7 @@ If the user is choosing, offer two or three templates by name with one line each
 The template's structure and styles are the design; its words and pictures are samples.
 
 - Rewrite every sample sentence, heading, table row, quote, price, code and name for the user's product. Ship no sample copy and invent no facts, numbers or customer quotes: take them from the user or the product, or cut that block.
-- Keep the block types and options (`tone`, `style`, `level`, `variant`) of what you keep. Delete, repeat or reorder whole blocks freely.
+- Keep the block types and options (`tone`, `size`, `level`, `variant`) of what you keep. Delete, repeat or reorder whole blocks freely.
 - Replace `https://example.com` links and every `{{…_url}}` with a real link, or keep the placeholder and bind it.
 - Images under `/api/assets/placeholder-…` are stand-ins. Use a public image URL from the user's product, or remove the image. If one stays for the user to replace in the editor, say so.
 - Leave out the logo, footer, postal address, unsubscribe link and "Sent via" line. They are added to every email.
