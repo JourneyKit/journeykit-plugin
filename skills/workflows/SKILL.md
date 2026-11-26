@@ -27,7 +27,7 @@ When a request depends on an event nobody tracks yet, say so and offer to add tr
 
 1. **Propose** in plain words: trigger, audience, steps with timings, copy, goal event and window, holdout, and how often one contact may enter (`reentry`: `once`, `sequential` or `parallel`). Default to a 10% holdout when the user wants to know whether it works, and a goal event that is the behaviour the automation is for. The audience is a `check` as the first step, usually `in` a saved segment.
 2. **Segment**, if the audience is reusable: `segments_preview` to show how many contacts match, then `segments_create`.
-3. **Email email**, for email steps: `presets_list` for one that fits, else write one with the `emails` skill: start from a template (`email_templates_list`) or blocks (`email_blocks_list`), rewrite the copy, and pass it to `presets_create` as `body`. The server applies the workspace's branding. Offer `presets_send_test`, which sends a real email to the signed-in member, so ask first.
+3. **Email email**, for email steps: `presets_list` for one that fits, else write one with the `emails` skill: start from a template (`email_templates_list`) or blocks (`email_blocks_list`), rewrite the copy, and pass it to `presets_create` as `blocks`. The server applies the workspace's branding. Offer `presets_send_test`, which sends a real email to the signed-in member, so ask first.
 4. **Automation**: `workflows_create` with `status: "paused"`. Without it an automation with steps goes **live** on creation.
 5. **Check** it with `workflows_get` and walk the user through what will happen to whom.
 
