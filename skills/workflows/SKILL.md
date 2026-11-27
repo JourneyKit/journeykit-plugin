@@ -17,7 +17,7 @@ Ground every proposal in what the workspace has:
 
 - `events_names` and `event_definitions_list`: event names that really arrive. An automation on a never-sent event never fires.
 - `contact_properties_list`: property keys, types and options.
-- `segments_list`, `workflows_list`, `presets_list`: reuse before creating.
+- `segments_list`, `workflows_list`, `presets_list`: reuse before creating. A workflow with an `owner` belongs to a list (its confirmation or welcome email) or a lead magnet (a course), which manages it: don't delete it as a duplicate.
 
 JourneyKit records some events itself, ready to use as triggers, goals and conditions: `email_opened`, `email_clicked`, `list_subscribed` (carries `listId`, `status` and `needsConfirmation`), `list_confirmed`, `list_unsubscribed`, `lead_magnet_claimed`, `lead_magnet_opened`.
 
