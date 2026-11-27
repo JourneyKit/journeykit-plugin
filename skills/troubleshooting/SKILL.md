@@ -57,7 +57,7 @@ Read it with `workflows_get`, `workflows_runs` and `workflows_run`.
 - Fewer recipients than expected: `broadcasts_audience` counts contacts with an address minus suppressed ones, and on an issue only active members (`confirmedOnly` also drops those who never clicked). A contact with neither a binding value nor a fallback for a `{{key}}` is left out; `broadcasts_messages` shows each recipient's status.
 - One person gets nothing: check `email_suppressions_list` (unsubscribed, bounced or complained). Only the person can undo an opt-out from a list. A member who is `pending` (a signup on a list that requires confirmation) gets nothing until they click the confirmation link: check `lists_subscribers` with `status: "pending"`, that the list's confirmation automation is active (`lists_get` → `confirmationReady`), and its runs with `workflows_runs`. `email_suppressions_remove` needs the user's word and their certainty that the person agreed.
 - Sent from the wrong address: `email_domain_get` shows the DNS records, their status and the From header in use. `email_domain_verify` after DNS changes.
-- A sent message's content and delivery: `email_history`, `email_message`.
+- A sent message's content and delivery: `email_sends` for any email (broadcasts, issues and lead magnet deliveries too), `email_history` for automation emails including skipped ones, `email_message` for an automation email's body.
 
 ## Signups or lead magnet claims fail
 

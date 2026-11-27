@@ -59,7 +59,7 @@ These reach real people or can't be undone, so each needs the user's explicit wo
 - Overall: `metrics_catalog` (what exists), `metrics_summary`, `metrics_series` (with the previous period, optionally for one segment), `insights_list`.
 - An automation: `workflows_analytics` (the full report: goal rate, lift, exit reasons, per-step breakdown, email delivery, opens, clicks and links), `workflows_funnel`, `workflows_timeseries`, `workflows_runs`, `workflows_run`, and `workflows_history` across all of them.
 - A person: `contacts_list`, `contacts_get`, `workflows_nudges_for_contact`, `lists_for_contact`, `lead_magnets_for_contact`.
-- Sent email: `email_history`, `email_message`.
+- Sent email: `email_sends` (all kinds, `kind: "workflow"` for automations), `email_history` (automation emails, skipped ones too), `email_message`.
 - Engagement: the segment conditions `engagement` (`engaged`, `at_risk`, `inactive`, `new`) and `last_engaged`, with `segments_preview` for the count.
 
 `workflows_analytics` follows runs started in the range, except its `email` part, which covers emails sent in the range.

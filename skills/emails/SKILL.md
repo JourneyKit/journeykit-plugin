@@ -23,9 +23,9 @@ JourneyKit has no record called an email. What to create depends on **who gets i
 | To change the confirmation or welcome email of a list, or a course lesson | The **email** in that list's or course's automation | `workflows_get` for its `presetId`, then `presets_update` |
 | To change the email that delivers a lead magnet | Two plain-text fields, no `blocks` | `lead_magnets_update` (`deliverySubject`, `deliveryMessage`) |
 | Content people read after claiming a lead magnet | A `page` **lead magnet** | `lead_magnets_set_page` |
-| To see an email that already went out | A sent message | `email_history`, `email_message` |
+| To see an email that already went out | A sent message | `email_sends` (every email, whatever sent it: automations, broadcasts and issues, lead magnet deliveries; filter by `kind`), `email_message` for an automation email's body (`messageId`); `email_history` also lists automation emails skipped before sending |
 
-- **"Template" is ambiguous.** Users mostly mean a saved email of their own: a preset. Check `presets_list` before the library when they say "our" or "my" template, or name one.
+- **"Template" is ambiguous.** Users mostly mean a saved email of their own: a preset. Check `presets_list` (each preset's `usedBy` says which workflow sends it, and the list or course that workflow was made for) before the library when they say "our" or "my" template, or name one.
 - **"Newsletter"** is the list, or one issue of it. "Start a newsletter" creates a list (`campaigns` skill); "write the newsletter" creates an issue, so check `lists_list`.
 - **An email sends nothing by itself.** When the user expects people to receive it, say what will send it and offer to set that up. A broadcast doesn't use emails: to send one as a broadcast, copy the `blocks` from `presets_get`.
 - **Changing something existing** comes first: look in `presets_list`, `broadcasts_list` (with the `listId` for issues) and the automations for an email the request could mean.
