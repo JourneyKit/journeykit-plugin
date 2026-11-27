@@ -41,7 +41,7 @@ JourneyKit has no browser SDK; all events come from the backend. Work through th
 
 ## An automation doesn't start or doesn't send
 
-Read it with `workflows_get`, `workflows_runs` and `workflows_run`.
+Read it with `workflows_get`, `workflows_runs` and `workflows_run`. `activity_list` (with `kinds: ["event", "run"]`) shows whether the trigger event arrived and whether anyone entered, newest first.
 
 - The automation is `paused`: only `active` automations enter contacts.
 - The trigger event name doesn't exactly match what's tracked (`check_setup` → `recent.eventNames`).

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- New MCP tool `activity_list`: what happened in the workspace, newest first (new contacts, events, automation runs and emails, broadcasts and issues going out), filterable by `kinds`. The `troubleshooting` skill uses it to see what happened lately.
 - `metrics_series` and `metrics_summary` return `startingTotal`: for contacts, how many there were before the range, so `startingTotal + current` is the total.
 - **Every sent email.** Needs a JourneyKit server with `email_sends`. New MCP tool `email_sends` lists every email that went out, whatever sent it (automations, broadcasts and list issues, lead magnet deliveries), filterable by `kind`, with what sent it and, for automation emails, the `messageId` for `email_message`. `presets_list` returns `usedBy`: the workflows that send each preset and the list or lead magnet a workflow was made for. `workflows_list` returns `owner`, the list or lead magnet a workflow was made for (null for one of its own). The `emails`, `workflows` and `troubleshooting` skills use them.
 - **Trigger filters and event labels.** Needs a JourneyKit server with trigger `where`. An event trigger takes `where`, the property values an event must have (`{ "listId": "…" }` is "joins this list"), which replaces a first `switch` on the same value; list confirmation, welcome and course automations are made that way. Event definitions take and return a `label` (what the dashboard calls the event) and return `builtIn`. The `workflows`, `campaigns` and `onboard` skills use them.
